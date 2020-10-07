@@ -1,0 +1,51 @@
+{
+  "go.autocompleteUnimportedPackages": true,
+  "go.gocodePackageLookupMode": "go",
+  "go.gotoSymbol.includeImports": true,
+  "go.useCodeSnippetsOnFunctionSuggestWithoutType": true,
+  "go.buildOnSave": "off",
+  "go.lintOnSave": "off",
+  "go.vetOnSave": "package",
+  "go.buildTags": "",
+  "go.buildFlags": [],
+  "go.lintFlags": [],
+  "go.vetFlags": [],
+  "go.coverOnSave": false,
+  "go.useCodeSnippetsOnFunctionSuggest": false,
+  "go.formatTool": "goimports",
+  "go.goroot": "c://Go",
+  "go.gopath": "D://gopath/",
+  "go.toolsGopath": "D://gopath/go/bin",
+  "go.gocodeAutoBuild": false,
+  "go.inferGopath": false,
+  "go.useLanguageServer": true,
+  "go.alternateTools": {
+    "go-langserver": "gopls"
+  },
+  "go.delveConfig": {
+    "dlvLoadConfig": {
+      "maxStringLen": 10000
+    }
+  },
+  "go.languageServerExperimentalFeatures": {
+    "format": false,
+    "autoComplete": true
+  },
+  "files.watcherExclude": {
+    "${workspaceRoot}/cmd/gateway/_debug_bin": true
+  },
+  "[go]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  // "protoc": {
+  //   "path": "E://protoc-3.11.2-win64//bin//protoc.exe",
+  //   "compile_on_save": false,
+  //   "options": [
+  //     "--go_out==plugins=grpc:${relativeFileDirname}"
+  //   ]
+  // },
+  "python.pythonPath": "D:\\Anaconda3\\envs\\py37\\python.exe",
+  "git.ignoreLimitWarning": true
+}
