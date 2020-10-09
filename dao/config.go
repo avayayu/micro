@@ -7,7 +7,7 @@ type DBOptions struct {
 	Mongo bool
 }
 
-type base struct {
+type Base struct {
 	URL      string `json:"URL" yaml:"URL"`
 	Port     string `json:"Port" yarml:"Port"`
 	UserName string `json:"userName" yaml:"userName"`
@@ -16,12 +16,12 @@ type base struct {
 }
 
 type MysqlConfig struct {
-	base
+	Base
 	FullConnectionString string `json:"fullConnection"`
 }
 
 type MongoConfig struct {
-	base
+	Base
 	IsReplicated         bool   `json:"isReplicated"`
 	ReplicatedName       string `json:"replicatedName"`
 	FullConnectionString string `json:"fullConnection"`
