@@ -15,24 +15,24 @@ type base struct {
 	DBName   string `json:"dbName" yaml:"DBName"`
 }
 
-type mysqlConfig struct {
+type MysqlConfig struct {
 	base
 	FullConnectionString string `json:"fullConnection"`
 }
 
-type mongoConfig struct {
+type MongoConfig struct {
 	base
 	IsReplicated         bool   `json:"isReplicated"`
 	ReplicatedName       string `json:"replicatedName"`
 	FullConnectionString string `json:"fullConnection"`
 }
 
-func (c *mysqlConfig) String() string {
+func (c *MysqlConfig) String() string {
 	c.FullConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", c.UserName, c.Password, c.URL, c.Port, c.DBName)
 	return c.FullConnectionString
 }
 
-func (c *mongoConfig) String() string {
+func (c *MongoConfig) String() string {
 	if c.IsReplicated {
 		c.FullConnectionString = fmt.Sprintf("mongodb://%s:%s/?replicaSet=%s", c.URL, c.Port, c.ReplicatedName)
 	} else {

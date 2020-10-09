@@ -33,8 +33,8 @@ type DB struct {
 	options      *DBOptions
 	mysqlClient  *gorm.DB
 	mongoClient  *mongo.Client
-	mysqlConfigs *mysqlConfig
-	mongoConfigs *mongoConfig
+	mysqlConfigs *MysqlConfig
+	mongoConfigs *MongoConfig
 }
 
 //NewDatabase 新建数据库连接
@@ -105,5 +105,15 @@ func (db *DB) Connect() *DB {
 		}
 	}
 
+	return db
+}
+
+func (db *DB) SetMysqlConfig(c *MysqlConfig) *DB {
+	db.mysqlConfigs = c
+	return db
+}
+
+func (db *DB) SetMongoConfig(c *MongoConfig) *DB {
+	db.mongoConfigs = c
 	return db
 }
