@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"mime/multipart"
 	"net"
@@ -349,4 +350,18 @@ func IPS() (ips []string) {
 		}
 	}
 	return
+}
+
+//IsDev 根据环境变量cloudbrainMode判断当前是否为生产环境或者开发环境
+func IsDev() bool {
+	mode := os.Getenv("cloudbrainMode")
+	if mode == "" {
+		log.Fatal("需要配置cloudbrainMode环境变量")
+		return true
+	}
+	if mode == dev {
+		return true
+	}
+
+	return false
 }
