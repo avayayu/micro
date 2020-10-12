@@ -8,6 +8,7 @@ import (
 	"github.com/avayayu/micro/dao"
 )
 
+
 type HttpRequest interface {
 	GetPageParameter() (int, int, *dao.Order, error)
 	GetPageFilters(model interface{}) (*dao.Filter, error)

@@ -117,3 +117,7 @@ func (db *DB) SetMongoConfig(c *MongoConfig) *DB {
 	db.mongoConfigs = c
 	return db
 }
+
+func (db *DB) GetMysql() *gorm.DB {
+	return db.mysqlClient
+}
