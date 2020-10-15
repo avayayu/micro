@@ -89,7 +89,7 @@ func (db *DB) Connect() *DB {
 
 	if db.options.Mongo {
 		if db.mongoConfigs != nil {
-			sqlFullConnection := db.mysqlConfigs.String()
+			sqlFullConnection := db.mongoConfigs.String()
 			client, err := db.NewMongoClient(sqlFullConnection, db.mongoConfigs.UserName, db.mongoConfigs.Password)
 			if err != nil {
 				panic(err)
