@@ -67,18 +67,19 @@ import (
 //NewMongoClient 根据config中的mongodb信息初始化连接
 func (db *DB) NewMongoClient(mongodbFullURL, userName, password string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(mongodbFullURL)
-	var moptions *options.ClientOptions
+	var moptions *options.ClientOptions = clientOptions.SetMinPoolSize(5)
 	if userName != "" && password != "" {
-		moptions = clientOptions.SetMinPoolSize(5).SetAuth(options.Credential{
+		moptions = moptions.SetAuth(options.Credential{
 			AuthSource: "admin", Username: userName, Password: password,
 		})
 	}
-
-	moptions = moptions.SetReadConcern(readconcern.Available())
-	//写策略 所有数据写入副本集所有节点 才完成 性能慢 但数据一致性高
-	moptions = moptions.SetWriteConcern(writeconcern.New(writeconcern.W(3)))
-	// 全局读策略 从最近节点读取数据
-	moptions = moptions.SetReadPreference(readpref.Nearest())
+	if db.mongoConfigs.IsReplicated {
+		moptions = moptions.SetReadConcern(readconcern.Available())
+		//写策略 所有数据写入副本集所有节点 才完成 性能慢 但数据一致性高
+		moptions = moptions.SetWriteConcern(writeconcern.New(writeconcern.W(3)))
+		// 全局读策略 从最近节点读取数据
+		moptions = moptions.SetReadPreference(readpref.Nearest())
+	}
 
 	client, err := mongo.NewClient(moptions)
 
