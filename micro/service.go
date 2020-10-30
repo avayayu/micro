@@ -32,6 +32,11 @@ type Micro interface {
 	Close()
 }
 
+type Controller interface {
+	AddRouter(router *http.RouterGroup)
+	SubRouterName() string
+}
+
 // func InJectCommonDep(micro Micro) error {
 // 	micro.db
 // }
