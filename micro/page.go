@@ -35,25 +35,19 @@ func PagesQuery(models interface{}, out interface{}, db dao.DAO, request http.Ht
 	if wheres != nil {
 		orders = append(orders, wheres...)
 	}
-
-	// elemType := reflect.TypeOf(models)
-	// fmt.Println(elemType.Name())
-	// sliceType := reflect.SliceOf(elemType)
-	// slice := reflect.MakeSlice(sliceType, 0, 0)
-
-	// // Create a pointer to a slice value and set it to the slice
-	// ptr := reflect.New(sliceType)
-	// ptr.Elem().Set(slice)
-	// datas = ptr.Interface()
-	// fmt.Printf("s is %T\n", datas)
-	// fmt.Println(datas)
-	// if err = db.GetPageWithFilters(models, filters, datas, page, perPage, &totalCount, true, orders...); err != nil {
-	// 	response.FlushHttpInnerError(code.DBQueryError, "查询患者列表出错", err)
-	// 	return
-	// }
-
 	err = db.GetPageWithFilters(models, filters, out, page, perPage, &totalCount, true, orders...)
 	// response.SetPagesData(totalCount, page, perPage, datas)
 	return
+}
 
+func PagesQueryRaw(rawSql string, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response) (totalCount int64, page int, perPage int, err error) {
+	perPage, page, _, err = request.GetPageParameter()
+
+	if err != nil {
+		return
+	}
+
+	err = db.GetPageByRaw(rawSql, out, page, perPage, &totalCount)
+	// response.SetPagesData(totalCount, page, perPage, datas)
+	return
 }

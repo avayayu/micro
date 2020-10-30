@@ -11,22 +11,22 @@ import (
 
 // Create 创建某模型一行
 func (db *DB) Create(value interface{}) error {
-	return db.mysqlClient.Create(value).Error
+	return db.mysqlClient.Omit(clause.Associations).Create(value).Error
 }
 
 // Save 保存更新
 func (db *DB) Save(value interface{}) error {
-	return db.mysqlClient.Save(value).Error
+	return db.mysqlClient.Omit(clause.Associations).Save(value).Error
 }
 
 // Updates 更新模型
 func (db *DB) Updates(where interface{}, value interface{}) error {
-	return db.mysqlClient.Model(where).Updates(value).Error
+	return db.mysqlClient.Model(where).Omit(clause.Associations).Updates(value).Error
 }
 
 //DeleteByModel 按
 func (db *DB) DeleteByModel(model interface{}) (count int64, err error) {
-	data := db.mysqlClient.Delete(model)
+	data := db.mysqlClient.Omit(clause.Associations).Delete(model)
 	if data.Error != nil {
 		return 0, data.Error
 	}
@@ -36,7 +36,7 @@ func (db *DB) DeleteByModel(model interface{}) (count int64, err error) {
 
 //DeleteByWhere 条件删除
 func (db *DB) DeleteByWhere(model, where interface{}) (count int64, err error) {
-	data := db.mysqlClient.Where(where).Delete(model)
+	data := db.mysqlClient.Where(where).Omit(clause.Associations).Delete(model)
 
 	if data.Error != nil {
 		return
@@ -47,7 +47,7 @@ func (db *DB) DeleteByWhere(model, where interface{}) (count int64, err error) {
 
 // DeleteByID 根据ID删除一行
 func (db *DB) DeleteByID(model interface{}, id uint64) (count int64, err error) {
-	data := db.mysqlClient.Where("id=?", id).Delete(model)
+	data := db.mysqlClient.Where("id=?", id).Omit(clause.Associations).Delete(model)
 	err = data.Error
 	if err != nil {
 		return 0, err
@@ -58,7 +58,7 @@ func (db *DB) DeleteByID(model interface{}, id uint64) (count int64, err error) 
 
 // DeleteByIDS 根据id批量删除
 func (db *DB) DeleteByIDS(model interface{}, ids []uint64) (count int64, err error) {
-	data := db.mysqlClient.Where("id in (?)", ids).Delete(model)
+	data := db.mysqlClient.Omit(clause.Associations).Where("id in (?)", ids).Delete(model)
 	err = data.Error
 	if err != nil {
 		return 0, err
