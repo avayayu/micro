@@ -70,7 +70,7 @@ func (db *DB) Connect() *DB {
 	if db.options.Mysql {
 		if db.mysqlConfigs != nil {
 			sqlFullConnection := db.mysqlConfigs.String()
-			client, err := gorm.Open(mysql.Open(sqlFullConnection), &gorm.Config{})
+			client, err := gorm.Open(mysql.Open(sqlFullConnection), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true})
 			if err != nil {
 				panic(err)
 			}
@@ -78,7 +78,7 @@ func (db *DB) Connect() *DB {
 		} else {
 			dsn := "tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
 			db.logger.Warn("mysqlConfig not set.Use the default DSN", zap.String("DSN", dsn))
-			client, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+			client, err := gorm.Open(mysql.Open(dsn), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true})
 			if err != nil {
 				panic(err)
 			}
