@@ -34,7 +34,7 @@ func (c *MysqlConfig) String() string {
 
 func (c *MongoConfig) String() string {
 	if c.IsReplicated {
-		c.FullConnectionString = fmt.Sprintf("mongodb://%s:%s/?replicaSet=%s", c.URL, c.Port, c.ReplicatedName)
+		c.FullConnectionString = fmt.Sprintf("mongodb://%s/?replicaSet=%s", c.URL, c.ReplicatedName)
 	} else {
 		c.FullConnectionString = fmt.Sprintf("mongodb://%s:%s", c.URL, c.Port)
 	}
