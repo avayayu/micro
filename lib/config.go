@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -23,6 +24,8 @@ const (
 
 type Config interface {
 	Get(string) string
+	GetInt(string) int
+	GetBool(string) bool
 }
 
 var configDatas ConfigMap
@@ -160,5 +163,24 @@ func (c *ConfigMap) Get(key string) string {
 		} else {
 			return value
 		}
+	}
+}
+
+func (c *ConfigMap) GetInt(key string) int {
+	value := c.Get(key)
+	if data, err := strconv.Atoi(value); err != nil {
+		panic(err)
+	} else {
+		return data
+	}
+
+}
+
+func (c *ConfigMap) GetBool(key string) bool {
+	value := c.Get(key)
+	if data, err := strconv.ParseBool(value); err != nil {
+		panic(err)
+	} else {
+		return data
 	}
 }
