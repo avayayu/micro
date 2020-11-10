@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
+
 var Node *snowflake.Node
 
 func init() {

@@ -9,11 +9,15 @@ import (
 )
 
 //PagesQuery 根据请求与模型 进行资源的分页查询/排序/过滤
-func PagesQuery(models interface{}, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response, wheres ...dao.PageWhereOrder) (totalCount int64, page int, perPage int, err error) {
+func PagesQuery(model interface{}, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response, wheres ...dao.PageWhereOrder) (totalCount int64, page int, perPage int, err error) {
 
-	if reflect.TypeOf(models).Kind() != reflect.Ptr {
+	if reflect.TypeOf(model).Kind() != reflect.Ptr {
 		err = errors.New("models must be ptr")
 		return
+	}
+
+	if rmodel, ok := model.(dao.FilterModels); ok {
+		model = rmodel.OrmModels()
 	}
 
 	perPage, page, rawOrder, err := request.GetPageParameter()
@@ -22,21 +26,20 @@ func PagesQuery(models interface{}, out interface{}, db dao.DAO, request http.Ht
 		return
 	}
 
-	filters, err := request.GetPageFilters(models)
+	filters, err := request.GetPageFilters(model)
 	if err != nil {
 		return
 	}
 
 	var orders []dao.PageWhereOrder
 	if rawOrder != nil {
-		orders = rawOrder.GetPageOrder(models)
+		orders = rawOrder.GetPageOrder(model)
 	}
 
 	if wheres != nil {
 		orders = append(orders, wheres...)
 	}
-	err = db.GetPageWithFilters(models, filters, out, page, perPage, &totalCount, true, orders...)
-	// response.SetPagesData(totalCount, page, perPage, datas)
+	err = db.GetPageWithFilters(model, filters, out, page, perPage, &totalCount, true, orders...)
 	return
 }
 

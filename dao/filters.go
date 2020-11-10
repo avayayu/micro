@@ -9,6 +9,11 @@ import (
 	"sync"
 )
 
+//FilterModels 用于定义前端请求与
+type FilterModels interface {
+	OrmModels() interface{}
+}
+
 //OrderType 用于前端排序
 type FilterType uint
 
