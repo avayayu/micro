@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/avayayu/micro/lib"
 )
 
 var JSONColumn map[string]map[string]string
@@ -72,12 +74,7 @@ func (order *Order) GetPageOrder(models interface{}) []PageWhereOrder {
 		panic("models must be a ptr")
 	}
 
-	var tableName string
-	if _, ok := reflect.TypeOf(models).Elem().MethodByName("TableName"); !ok {
-		panic("models do not have methods TableName()")
-	} else {
-		tableName = reflect.ValueOf(models).MethodByName("TableName").Call(nil)[0].String()
-	}
+	tableName := lib.GetTypeFullName(models)
 
 	orderMux.Lock()
 	defer orderMux.Unlock()

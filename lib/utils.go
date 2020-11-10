@@ -365,3 +365,12 @@ func IsDev() bool {
 
 	return false
 }
+
+//GetType 获得类型的名称
+func GetTypeFullName(myvar interface{}) string {
+	if t := reflect.TypeOf(myvar); t.Kind() == reflect.Ptr {
+		return t.Elem().PkgPath() + "/" + t.Elem().Name()
+	} else {
+		return t.PkgPath() + "/" + t.Name()
+	}
+}

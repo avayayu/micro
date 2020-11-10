@@ -15,9 +15,11 @@ func PagesQuery(model interface{}, out interface{}, db dao.DAO, request http.Htt
 		err = errors.New("models must be ptr")
 		return
 	}
-
+	var dataModel interface{}
 	if rmodel, ok := model.(dao.FilterModels); ok {
-		model = rmodel.OrmModels()
+		dataModel = rmodel.OrmModels()
+	} else {
+		dataModel = model
 	}
 
 	perPage, page, rawOrder, err := request.GetPageParameter()
@@ -39,7 +41,7 @@ func PagesQuery(model interface{}, out interface{}, db dao.DAO, request http.Htt
 	if wheres != nil {
 		orders = append(orders, wheres...)
 	}
-	err = db.GetPageWithFilters(model, filters, out, page, perPage, &totalCount, true, orders...)
+	err = db.GetPageWithFilters(dataModel, filters, out, page, perPage, &totalCount, true, orders...)
 	return
 }
 
