@@ -243,3 +243,4 @@ func CheckError(err error) (bool, error) {
 	}
 	return false, err
 }
+  

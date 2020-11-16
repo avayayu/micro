@@ -21,6 +21,15 @@ import (
 type DAO interface {
 	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error
 	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
+	Create(value interface{}) error
+	Save(value interface{}) error
+	Updates(where interface{}, value interface{})
+	First(where interface{}, out interface{}) (notFound bool, err error)
+	Find(where interface{}, out interface{}, orders ...string)
+	Scan(model, where interface{}, out interface{}) (notFound bool, err error)
+	ScanList(model, where interface{}, out interface{}, orders ...string)
+	GetPage(model, where interface{}, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder)
+	Joins(model string) DAO
 }
 
 type DBConnection interface {
