@@ -79,6 +79,9 @@ func (db *DB) First(model, where interface{}, out interface{}) (notFound bool, e
 	err = db.mysqlClient.Model(model).Where(where).First(out).Error
 	if err != nil {
 		notFound = errors.Is(err, gorm.ErrRecordNotFound)
+		if notFound {
+			err = nil
+		}
 		return
 	}
 	return
