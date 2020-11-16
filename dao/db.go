@@ -21,21 +21,18 @@ import (
 type DAO interface {
 	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error
 	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
-	Create(value interface{}) error
-	Save(value interface{}) error
-	Updates(where interface{}, value interface{})
-	First(where interface{}, out interface{}) (notFound bool, err error)
-	Find(where interface{}, out interface{}, orders ...string)
-	Scan(model, where interface{}, out interface{}) (notFound bool, err error)
-	ScanList(model, where interface{}, out interface{}, orders ...string)
-	GetPage(model, where interface{}, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder)
-	Joins(model string) DAO
+	Create(model interface{}, createdBy string, value interface{}) error
+	Updates(model interface{}, updatedBy string, where, value interface{}) error
+	Delete(model interface{}, deletedBy string, where interface{}, filters ...interface{}) error
+	First(model, where, out interface{}) (notFound bool, err error)
+	Find(model, where, out interface{}, orders ...string) error
+	Scan(model, where, out interface{}) (notFound bool, err error)
+	ScanList(model, where, out interface{}, orders ...string) error
+	GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error
+	GetMongo() *mongo.Client
+	GetMysql() *gorm.DB
+	SetLogger(logger *zap.Logger)
 }
-
-type DBConnection interface {
-}
-
-const _module = "dbManager"
 
 //Database 数据库管理
 type DB struct {
@@ -50,7 +47,7 @@ type DB struct {
 //NewDatabase 新建数据库连接
 //如果path 文件不存在，那么重建数据结构
 //configs里 如果处于Debug模式 那么连阿里云RDS外网服务 如果是生产环境则直接连阿里云RDS内网服务
-func NewDatabase(options *DBOptions) *DB {
+func NewDatabase(options *DBOptions) DAO {
 	if options == nil {
 		options = &DBOptions{
 			Mysql: true,

@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"reflect"
 
 	ztime "github.com/avayayu/micro/time"
 
@@ -10,8 +11,15 @@ import (
 )
 
 // Create 创建某模型一行
-func (db *DB) Create(value interface{}) error {
-	return db.mysqlClient.Omit(clause.Associations).Create(value).Error
+func (db *DB) Create(model interface{}, createdBy string, value interface{}) error {
+	typ := reflect.TypeOf(value)
+	if _, ok := typ.FieldByName("CreatedBy"); !ok {
+		return errors.New("model is not a bfr micro models")
+	} else {
+		val := reflect.ValueOf(value).FieldByName("CreatedBy")
+		val.SetString(createdBy)
+	}
+	return db.mysqlClient.Omit(clause.Associations).Model(model).Create(value).Error
 }
 
 // Save 保存更新
@@ -20,18 +28,8 @@ func (db *DB) Save(value interface{}) error {
 }
 
 // Updates 更新模型
-func (db *DB) Updates(where interface{}, value interface{}) error {
-	return db.mysqlClient.Model(where).Omit(clause.Associations).Updates(value).Error
-}
-
-//DeleteByModel 按
-func (db *DB) DeleteByModel(model interface{}) (count int64, err error) {
-	data := db.mysqlClient.Omit(clause.Associations).Delete(model)
-	if data.Error != nil {
-		return 0, data.Error
-	}
-	count = data.RowsAffected
-	return
+func (db *DB) Updates(model interface{}, UpdatesBy string, where interface{}, value interface{}) error {
+	return db.mysqlClient.Omit(clause.Associations).Model(model).Where(where).Updates(value).Error
 }
 
 //DeleteByWhere 条件删除
@@ -77,8 +75,8 @@ func (db *DB) FirstByID(out interface{}, id int) (notFound bool, err error) {
 }
 
 // First 符合条件的第一行
-func (db *DB) First(where interface{}, out interface{}) (notFound bool, err error) {
-	err = db.mysqlClient.Where(where).First(out).Error
+func (db *DB) First(model, where interface{}, out interface{}) (notFound bool, err error) {
+	err = db.mysqlClient.Model(model).Where(where).First(out).Error
 	if err != nil {
 		notFound = errors.Is(err, gorm.ErrRecordNotFound)
 		return
@@ -87,8 +85,8 @@ func (db *DB) First(where interface{}, out interface{}) (notFound bool, err erro
 }
 
 // Find 根据条件查询到的数据
-func (db *DB) Find(where interface{}, out interface{}, orders ...string) error {
-	data := db.mysqlClient.Where(where)
+func (db *DB) Find(model, where interface{}, out interface{}, orders ...string) error {
+	data := db.mysqlClient.Model(model).Where(where)
 	if len(orders) > 0 {
 		for _, order := range orders {
 			data = data.Order(order)
@@ -119,7 +117,7 @@ func (db *DB) ScanList(model, where interface{}, out interface{}, orders ...stri
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPage(model, where interface{}, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error {
+func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error {
 	var data *gorm.DB
 	if autoLoad {
 		data = db.mysqlClient.Preload(clause.Associations).Model(model)
@@ -218,13 +216,8 @@ func (db *DB) PluckList(model, where interface{}, out interface{}, fieldName str
 	return db.mysqlClient.Model(model).Where(where).Pluck(fieldName, out).Error
 }
 
-func (db *DB) Delete(model interface{}, tx *gorm.DB, DeletedBy string, filters ...interface{}) error {
-	var op *gorm.DB
-	if tx != nil {
-		op = tx.Model(model)
-	} else {
-		op = db.mysqlClient.Model(model)
-	}
+func (db *DB) Delete(model interface{}, deletedBy string, where interface{}, filters ...interface{}) error {
+	var op *gorm.DB = db.mysqlClient.Model(model)
 
 	if len(filters)%2 != 0 {
 		panic("filters length must be even")
@@ -233,7 +226,7 @@ func (db *DB) Delete(model interface{}, tx *gorm.DB, DeletedBy string, filters .
 	for i := 0; i < len(filters); i = i + 2 {
 		op = op.Where(filters[i], filters[i+1])
 	}
-	return op.Updates(map[string]interface{}{"deleted_at": ztime.Now(), "deleted_by": DeletedBy}).Error
+	return op.Updates(map[string]interface{}{"deleted_at": ztime.Now(), "deleted_by": deletedBy}).Error
 }
 
 //CheckError 检查错误是否为数据不存在
@@ -243,4 +236,3 @@ func CheckError(err error) (bool, error) {
 	}
 	return false, err
 }
-  
