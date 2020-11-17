@@ -9,26 +9,33 @@ package dao
  * @输出一段不带属性的自定义信息
  */
 import (
+	"github.com/avayayu/micro/logging"
 	_ "github.com/go-sql-driver/mysql" //加载mysql驱动给gorm
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
-	"github.com/avayayu/micro/logging"
+	"gorm.io/plugin/prometheus"
 )
 
 type DAO interface {
-	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error
-	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
+	Connect() DAO
+	SetMysqlConfig(c *MysqlConfig) DAO
+	SetMongoConfig(c *MongoConfig) DAO
+	AutoMigrate(models ...interface{}) error
 	Create(model interface{}, createdBy string, value interface{}) error
-	Updates(model interface{}, updatedBy string, where, value interface{}) error
-	Delete(model interface{}, deletedBy string, where interface{}, filters ...interface{}) error
-	First(model, where, out interface{}) (notFound bool, err error)
-	Find(model, where, out interface{}, orders ...string) error
-	Scan(model, where, out interface{}) (notFound bool, err error)
-	ScanList(model, where, out interface{}, orders ...string) error
-	GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error
+	Updates(model interface{}, updatedBy string, value interface{}, filters ...interface{}) error
+	Delete(model interface{}, deletedBy string, filters ...interface{}) error
+	First(model, out interface{}, options ...QueryOptions) (notFound bool, err error)
+	Find(model, out interface{}, options ...QueryOptions) error
+	Raw(sql string, out interface{}) error
+	NewTransaction() *Transactions
+	AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions
+	ExecTrans(tran *Transactions) error
+
+	GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...QueryOptions) error
+	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...QueryOptions) error
+	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
 	GetMongo() *mongo.Client
 	GetMysql() *gorm.DB
 	SetLogger(logger *zap.Logger)
@@ -61,6 +68,20 @@ func NewDatabase(options *DBOptions) DAO {
 	return database
 }
 
+func newDatabase(options *DBOptions) *DB {
+	if options == nil {
+		options = &DBOptions{
+			Mysql: true,
+			Mongo: false,
+		}
+	}
+	database := &DB{
+		options: options,
+		logger:  logging.NewSimpleLogger(),
+	}
+	return database
+}
+
 //SetLogger 设置外部logger
 func (db *DB) SetLogger(logger *zap.Logger) {
 	db.logger = logger
@@ -71,20 +92,34 @@ func (db *DB) GetMongo() *mongo.Client {
 	return db.mongoClient
 }
 
-func (db *DB) Connect() *DB {
+func (db *DB) Connect() DAO {
 	//连接mysql
 	if db.options.Mysql {
 		if db.mysqlConfigs != nil {
 			sqlFullConnection := db.mysqlConfigs.String()
-			client, err := gorm.Open(mysql.Open(sqlFullConnection), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true})
+			client, err := gorm.Open(mysql.Open(sqlFullConnection), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, FullSaveAssociations: false})
 			if err != nil {
 				panic(err)
 			}
 			db.mysqlClient = client
+			if db.mysqlConfigs.OpenPrometheus {
+				db.mysqlClient.Use(prometheus.New(prometheus.Config{
+					DBName:          "db1",                                             // 使用 `DBName` 作为指标 label
+					RefreshInterval: uint32(db.mysqlConfigs.PrometheusRefreshInterval), // 指标刷新频率（默认为 15 秒）
+					PushAddr:        "prometheus pusher address",                       // 如果配置了 `PushAddr`，则推送指标
+					StartServer:     true,                                              // 启用一个 http 服务来暴露指标
+					HTTPServerPort:  uint32(db.mysqlConfigs.PrometheusPort),            // 配置 http 服务监听端口，默认端口为 8080 （如果您配置了多个，只有第一个 `HTTPServerPort` 会被使用）
+					MetricsCollector: []prometheus.MetricsCollector{
+						&prometheus.MySQL{
+							VariableNames: []string{"Threads_running"},
+						},
+					}, // 用户自定义指标
+				}))
+			}
 		} else {
 			dsn := "tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
 			db.logger.Warn("mysqlConfig not set.Use the default DSN", zap.String("DSN", dsn))
-			client, err := gorm.Open(mysql.Open(dsn), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true})
+			client, err := gorm.Open(mysql.Open(dsn), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, FullSaveAssociations: false})
 			if err != nil {
 				panic(err)
 			}
@@ -115,16 +150,20 @@ func (db *DB) Connect() *DB {
 	return db
 }
 
-func (db *DB) SetMysqlConfig(c *MysqlConfig) *DB {
+func (db *DB) SetMysqlConfig(c *MysqlConfig) DAO {
 	db.mysqlConfigs = c
 	return db
 }
 
-func (db *DB) SetMongoConfig(c *MongoConfig) *DB {
+func (db *DB) SetMongoConfig(c *MongoConfig) DAO {
 	db.mongoConfigs = c
 	return db
 }
 
 func (db *DB) GetMysql() *gorm.DB {
 	return db.mysqlClient
+}
+
+func (db *DB) AutoMigrate(models ...interface{}) error {
+	return db.mysqlClient.AutoMigrate(models...)
 }

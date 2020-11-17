@@ -12,11 +12,16 @@ import (
 
 // Create 创建某模型一行
 func (db *DB) Create(model interface{}, createdBy string, value interface{}) error {
-	typ := reflect.TypeOf(value)
+
+	if reflect.TypeOf(value).Kind() != reflect.Ptr {
+		panic("value must be ptr")
+	}
+
+	typ := reflect.TypeOf(value).Elem()
 	if _, ok := typ.FieldByName("CreatedBy"); !ok {
 		return errors.New("model is not a bfr micro models")
 	} else {
-		val := reflect.ValueOf(value).FieldByName("CreatedBy")
+		val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
 		val.SetString(createdBy)
 	}
 	return db.mysqlClient.Omit(clause.Associations).Model(model).Create(value).Error
@@ -28,99 +33,59 @@ func (db *DB) Save(value interface{}) error {
 }
 
 // Updates 更新模型
-func (db *DB) Updates(model interface{}, UpdatesBy string, where interface{}, value interface{}) error {
-	return db.mysqlClient.Omit(clause.Associations).Model(model).Where(where).Updates(value).Error
-}
+func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
+	session := db.mysqlClient.Omit(clause.Associations).Model(model)
+	if len(filters) > 0 {
 
-//DeleteByWhere 条件删除
-func (db *DB) DeleteByWhere(model, where interface{}) (count int64, err error) {
-	data := db.mysqlClient.Where(where).Omit(clause.Associations).Delete(model)
+		if len(filters)%2 != 0 {
+			panic("filters must be odd")
+		}
 
-	if data.Error != nil {
-		return
+		for i := 0; i < len(filters); i += 2 {
+			session = session.Where(filters[i], filters[i+1])
+		}
+	} else {
+		db.logger.Warn("updates data in no condition")
 	}
-	count = data.RowsAffected
-	return
-}
-
-// DeleteByID 根据ID删除一行
-func (db *DB) DeleteByID(model interface{}, id uint64) (count int64, err error) {
-	data := db.mysqlClient.Where("id=?", id).Omit(clause.Associations).Delete(model)
-	err = data.Error
-	if err != nil {
-		return 0, err
-	}
-	count = data.RowsAffected
-	return count, nil
-}
-
-// DeleteByIDS 根据id批量删除
-func (db *DB) DeleteByIDS(model interface{}, ids []uint64) (count int64, err error) {
-	data := db.mysqlClient.Omit(clause.Associations).Where("id in (?)", ids).Delete(model)
-	err = data.Error
-	if err != nil {
-		return 0, err
-	}
-	count = db.mysqlClient.RowsAffected
-	return 0, nil
-}
-
-// FirstByID 查找第一个ID的数据
-func (db *DB) FirstByID(out interface{}, id int) (notFound bool, err error) {
-	err = db.mysqlClient.First(out, id).Error
-	if err != nil {
-		notFound = errors.Is(err, gorm.ErrRecordNotFound)
-	}
-	return
+	return session.Updates(value).Error
 }
 
 // First 符合条件的第一行
-func (db *DB) First(model, where interface{}, out interface{}) (notFound bool, err error) {
-	err = db.mysqlClient.Model(model).Where(where).First(out).Error
+func (db *DB) First(model, out interface{}, options ...QueryOptions) (Found bool, err error) {
+	op := db.mysqlClient.Model(model)
+	for _, option := range options {
+		op = option.ParseQuery(op)
+	}
+	err = op.First(out).Error
 	if err != nil {
-		notFound = errors.Is(err, gorm.ErrRecordNotFound)
+		notFound := errors.Is(err, gorm.ErrRecordNotFound)
 		if notFound {
+			Found = false
 			err = nil
 		}
 		return
 	}
-	return
+	return true, nil
+}
+
+func (db *DB) Raw(sql string, out interface{}) error {
+	if reflect.TypeOf(out).Kind() != reflect.Ptr {
+		panic("out must be ptr")
+	}
+	return db.mysqlClient.Raw(sql).Scan(out).Error
 }
 
 // Find 根据条件查询到的数据
-func (db *DB) Find(model, where interface{}, out interface{}, orders ...string) error {
-	data := db.mysqlClient.Model(model).Where(where)
-	if len(orders) > 0 {
-		for _, order := range orders {
-			data = data.Order(order)
-		}
+func (db *DB) Find(model, out interface{}, options ...QueryOptions) error {
+	op := db.mysqlClient.Model(model)
+	for _, option := range options {
+		op = option.ParseQuery(op)
 	}
-	return data.Find(out).Error
-}
-
-// Scan where为sql语句，model为自定义的结果模型数据结构 将结果扫描到数据结构中
-func (db *DB) Scan(model, where interface{}, out interface{}) (notFound bool, err error) {
-	err = db.mysqlClient.Model(model).Where(where).Scan(out).Error
-	if err != nil {
-		notFound = errors.Is(err, gorm.ErrRecordNotFound)
-		return notFound, err
-	}
-	return false, nil
-}
-
-// ScanList where为sql  将结果扫描到数据结构中 并根据orders排序
-func (db *DB) ScanList(model, where interface{}, out interface{}, orders ...string) error {
-	data := db.mysqlClient.Model(model).Where(where)
-	if len(orders) > 0 {
-		for _, order := range orders {
-			data = data.Order(order)
-		}
-	}
-	return data.Scan(out).Error
+	return op.Scan(out).Error
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error {
+func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...QueryOptions) error {
 	var data *gorm.DB
 	if autoLoad {
 		data = db.mysqlClient.Preload(clause.Associations).Model(model)
@@ -130,14 +95,9 @@ func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, to
 	if where != nil {
 		data = data.Where(where)
 	}
-	if whereOrder != nil && len(whereOrder) > 0 {
-		for _, wo := range whereOrder {
-			if wo.Order != "" {
-				data = data.Order(wo.Order)
-			}
-			if wo.Where != "" {
-				data = data.Where(wo.Where, wo.Value...)
-			}
+	if options != nil && len(options) > 0 {
+		for _, option := range options {
+			data = option.ParseQuery(data)
 		}
 	} else {
 		data = data.Order("updated_at desc").Order("created_at desc")
@@ -154,7 +114,7 @@ func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, to
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, whereOrder ...PageWhereOrder) error {
+func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...QueryOptions) error {
 
 	var data *gorm.DB = db.mysqlClient.Debug()
 
@@ -172,18 +132,13 @@ func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interfa
 			data = data.Where(condition, cri)
 		}
 	}
-	if whereOrder != nil && len(whereOrder) > 0 {
-		for _, wo := range whereOrder {
-			if wo.Order != "" {
-				data = data.Order(wo.Order)
-			}
-			if wo.Where != "" {
-				data = data.Where(wo.Where, wo.Value...)
-			}
-		}
-	} else {
-		data = data.Order("updated_at desc").Order("created_at desc")
+
+	for _, option := range options {
+		data = option.ParseQuery(data)
 	}
+
+	data = data.Order("updated_at desc").Order("created_at desc")
+
 	err := data.Count(totalCount).Error
 
 	if err != nil {
@@ -219,7 +174,7 @@ func (db *DB) PluckList(model, where interface{}, out interface{}, fieldName str
 	return db.mysqlClient.Model(model).Where(where).Pluck(fieldName, out).Error
 }
 
-func (db *DB) Delete(model interface{}, deletedBy string, where interface{}, filters ...interface{}) error {
+func (db *DB) Delete(model interface{}, deletedBy string, filters ...interface{}) error {
 	var op *gorm.DB = db.mysqlClient.Model(model)
 
 	if len(filters)%2 != 0 {
@@ -238,4 +193,21 @@ func CheckError(err error) (bool, error) {
 		return true, nil
 	}
 	return false, err
+}
+
+func (db *DB) NewTransaction() *Transactions {
+
+	trans := Transactions{
+		session: db.mysqlClient.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
+	}
+	return &trans
+}
+
+func (db *DB) AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions {
+	tran.subTransactions = append(tran.subTransactions, subT)
+	return tran
+}
+
+func (db *DB) ExecTrans(tran *Transactions) error {
+	return tran.Run()
 }

@@ -17,7 +17,10 @@ type Base struct {
 
 type MysqlConfig struct {
 	Base
-	FullConnectionString string `json:"fullConnection"`
+	FullConnectionString      string `json:"fullConnection"`
+	OpenPrometheus            bool   `json:"openPrometheus"`
+	PrometheusPort            int    `json:"prometheusPort"`
+	PrometheusRefreshInterval int    `json:"prometheusRefreshInterval"`
 }
 
 type MongoConfig struct {

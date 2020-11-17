@@ -2,22 +2,73 @@ package dao
 
 import (
 	"bytes"
+	"context"
 	"reflect"
 	"strings"
 	"sync"
 
 	"github.com/avayayu/micro/lib"
+	"gorm.io/gorm"
 )
 
 var JSONColumn map[string]map[string]string
 var orderMux sync.Mutex
 
-//PageWhereOrder 分页排序
-type PageWhereOrder struct {
+//QueryOptions 分页排序
+type QueryOptions struct {
 	Order string
 	Where string
 	//条件可能是一个列表 比如 where 为 id in (?)
-	Value []interface{}
+	Conditions    []interface{}
+	PluckList     []string
+	JoinTableList []string
+	Ctx           context.Context
+}
+
+func (options *QueryOptions) WhereQuery(where string, conditions ...interface{}) *QueryOptions {
+	options.Where = where
+	options.Conditions = conditions
+	return options
+}
+
+func (options *QueryOptions) Pluck(attrs ...string) *QueryOptions {
+	options.PluckList = append(options.PluckList, attrs...)
+	return options
+}
+
+func (options *QueryOptions) Joins(Table ...string) *QueryOptions {
+	options.JoinTableList = append(options.JoinTableList, Table...)
+	return options
+}
+
+func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
+
+	if options.Ctx != nil {
+		session = session.WithContext(options.Ctx)
+	}
+
+	for _, table := range options.JoinTableList {
+		session = session.Joins(table)
+	}
+
+	if options.Order != "" {
+		session = session.Order(options.Order)
+	}
+	if options.Where != "" {
+		session = session.Where(options.Where, options.Conditions...)
+	}
+
+	if len(options.PluckList) > 0 {
+		var buf bytes.Buffer
+		for _, col := range options.PluckList {
+			buf.WriteString(col)
+			buf.WriteByte(',')
+		}
+		cols := buf.String()
+		cols = cols[1 : len(cols)-1]
+		session = session.Select(cols)
+	}
+	return session
 }
 
 //OrderType 用于前端排序
@@ -69,7 +120,7 @@ func (order *Order) String() string {
 }
 
 //GetPageOrder 构造GetPageOrder
-func (order *Order) GetPageOrder(models interface{}) []PageWhereOrder {
+func (order *Order) GetPageOrder(models interface{}) []QueryOptions {
 	if reflect.TypeOf(models).Kind() != reflect.Ptr {
 		panic("models must be a ptr")
 	}
@@ -104,12 +155,12 @@ func (order *Order) GetPageOrder(models interface{}) []PageWhereOrder {
 		JSONColumn[tableName] = mapData
 	}
 	mapData = JSONColumn[tableName]
-	var pageOrders []PageWhereOrder
+	var pageOrders []QueryOptions
 	if order.Orders == nil {
 		return nil
 	}
 	for _, orderItem := range order.Orders {
-		pageOrder := PageWhereOrder{}
+		pageOrder := QueryOptions{}
 		if realColumn, ok := mapData[orderItem.Column]; ok {
 			pageOrder.Order = realColumn + " " + orderItem.OrderType.String()
 		}
