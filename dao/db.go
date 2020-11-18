@@ -23,6 +23,7 @@ type DAO interface {
 	Connect() DAO
 	SetMysqlConfig(c *MysqlConfig) DAO
 	SetMongoConfig(c *MongoConfig) DAO
+	SetOracleConfig(c *OracleConfig) DAO
 	AutoMigrate(models ...interface{}) error
 	Create(model interface{}, createdBy string, value interface{}) error
 	Updates(model interface{}, updatedBy string, value interface{}, filters ...interface{}) error

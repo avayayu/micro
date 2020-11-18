@@ -33,6 +33,8 @@ type MongoConfig struct {
 
 type OracleConfig struct {
 	Base
+	ServiceName          string `json:"serviceName"`
+	LibPath              string `json:"libPath"`
 	FullConnectionString string `json:"fullConnection"`
 }
 
@@ -43,6 +45,7 @@ func (c *MysqlConfig) String() string {
 
 func (c *OracleConfig) String() string {
 	c.FullConnectionString = fmt.Sprintf("%s/%s@%s:%s/%s", c.UserName, c.Password, c.URL, c.Port, c.DBName)
+	fmt.Println(c.FullConnectionString)
 	return c.FullConnectionString
 }
 
