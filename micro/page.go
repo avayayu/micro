@@ -9,7 +9,7 @@ import (
 )
 
 //PagesQuery 根据请求与模型 进行资源的分页查询/排序/过滤
-func PagesQuery(model interface{}, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response, wheres ...dao.QueryOptions) (totalCount int64, page int, perPage int, err error) {
+func PagesQuery(model interface{}, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response, wheres ...*dao.QueryOptions) (totalCount int64, page int, perPage int, err error) {
 
 	if reflect.TypeOf(model).Kind() != reflect.Ptr {
 		err = errors.New("models must be ptr")
@@ -33,7 +33,7 @@ func PagesQuery(model interface{}, out interface{}, db dao.DAO, request http.Htt
 		return
 	}
 
-	var orders []dao.QueryOptions
+	var orders []*dao.QueryOptions
 	if rawOrder != nil {
 		orders = rawOrder.GetPageOrder(model)
 	}
