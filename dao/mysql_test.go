@@ -126,7 +126,7 @@ func TestDB_First(t *testing.T) {
 	type args struct {
 		model   interface{}
 		out     interface{}
-		options []QueryOptions
+		options []*QueryOptions
 	}
 	tests := []struct {
 		name         string
@@ -142,7 +142,7 @@ func TestDB_First(t *testing.T) {
 			args: args{
 				model:   &DeviceType{},
 				out:     &DeviceType{},
-				options: []QueryOptions{{where: "device_type_code=?", conditions: []interface{}{"aider_01"}}},
+				options: []*QueryOptions{{where: "device_type_code=?", conditions: []interface{}{"aider_01"}}},
 			},
 			wantNotFound: true,
 			wantErr:      false,
@@ -153,7 +153,7 @@ func TestDB_First(t *testing.T) {
 			args: args{
 				model:   &DeviceType{},
 				out:     &DeviceType{},
-				options: []QueryOptions{{where: "device_type_code=?", conditions: []interface{}{"aider_02"}}},
+				options: []*QueryOptions{{where: "device_type_code=?", conditions: []interface{}{"aider_02"}}},
 			},
 			wantNotFound: false,
 			wantErr:      false,
@@ -214,7 +214,7 @@ func TestDB_Find(t *testing.T) {
 	type args struct {
 		model   interface{}
 		out     interface{}
-		options []QueryOptions
+		options []*QueryOptions
 	}
 	tests := []struct {
 		name    string
@@ -229,7 +229,7 @@ func TestDB_Find(t *testing.T) {
 			args: args{
 				model:   &DeviceType{},
 				out:     &deviceType,
-				options: []QueryOptions{{where: "device_type_name=?", conditions: []interface{}{"aider_01"}}},
+				options: []*QueryOptions{{where: "device_type_name=?", conditions: []interface{}{"aider_01"}}},
 			},
 			wantErr: false,
 		},
@@ -239,7 +239,7 @@ func TestDB_Find(t *testing.T) {
 			args: args{
 				model:   &DeviceType{},
 				out:     &deviceType,
-				options: []QueryOptions{{where: "device_type_name=?", conditions: []interface{}{"aider_02"}}},
+				options: []*QueryOptions{{where: "device_type_name=?", conditions: []interface{}{"aider_02"}}},
 			},
 			wantErr: false,
 		},

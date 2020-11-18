@@ -51,7 +51,7 @@ func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, fi
 }
 
 // First 符合条件的第一行
-func (db *DB) First(model, out interface{}, options ...QueryOptions) (Found bool, err error) {
+func (db *DB) First(model, out interface{}, options ...*QueryOptions) (Found bool, err error) {
 	op := db.mysqlClient.Model(model)
 	for _, option := range options {
 		op = option.ParseQuery(op)
@@ -76,7 +76,7 @@ func (db *DB) Raw(sql string, out interface{}) error {
 }
 
 // Find 根据条件查询到的数据
-func (db *DB) Find(model, out interface{}, options ...QueryOptions) error {
+func (db *DB) Find(model, out interface{}, options ...*QueryOptions) error {
 	op := db.mysqlClient.Model(model)
 	for _, option := range options {
 		op = option.ParseQuery(op)
@@ -85,7 +85,7 @@ func (db *DB) Find(model, out interface{}, options ...QueryOptions) error {
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...QueryOptions) error {
+func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...*QueryOptions) error {
 	var data *gorm.DB
 	if autoLoad {
 		data = db.mysqlClient.Preload(clause.Associations).Model(model)
@@ -114,7 +114,7 @@ func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, to
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...QueryOptions) error {
+func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...*QueryOptions) error {
 
 	var data *gorm.DB = db.mysqlClient.Debug()
 
