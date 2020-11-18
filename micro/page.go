@@ -45,7 +45,7 @@ func PagesQuery(model interface{}, out interface{}, db dao.DAO, request http.Htt
 	return
 }
 
-//PagesQueryRaw
+//PagesQueryRaw test2222
 func PagesQueryRaw(rawSql string, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response) (totalCount int64, page int, perPage int, err error) {
 	perPage, page, _, err = request.GetPageParameter()
 
