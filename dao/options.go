@@ -16,28 +16,28 @@ var orderMux sync.Mutex
 
 //QueryOptions 分页排序
 type QueryOptions struct {
-	Order string
-	Where string
+	order string
+	where string
 	//条件可能是一个列表 比如 where 为 id in (?)
-	Conditions    []interface{}
-	PluckList     []string
-	JoinTableList []string
+	conditions    []interface{}
+	selectList    []string
+	joinTableList []string
 	Ctx           context.Context
 }
 
 func (options *QueryOptions) WhereQuery(where string, conditions ...interface{}) *QueryOptions {
-	options.Where = where
-	options.Conditions = conditions
+	options.where = where
+	options.conditions = conditions
 	return options
 }
 
-func (options *QueryOptions) Pluck(attrs ...string) *QueryOptions {
-	options.PluckList = append(options.PluckList, attrs...)
+func (options *QueryOptions) Select(attrs ...string) *QueryOptions {
+	options.selectList = append(options.selectList, attrs...)
 	return options
 }
 
 func (options *QueryOptions) Joins(Table ...string) *QueryOptions {
-	options.JoinTableList = append(options.JoinTableList, Table...)
+	options.joinTableList = append(options.joinTableList, Table...)
 	return options
 }
 
@@ -47,20 +47,20 @@ func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 		session = session.WithContext(options.Ctx)
 	}
 
-	for _, table := range options.JoinTableList {
+	for _, table := range options.joinTableList {
 		session = session.Joins(table)
 	}
 
-	if options.Order != "" {
-		session = session.Order(options.Order)
+	if options.order != "" {
+		session = session.Order(options.order)
 	}
-	if options.Where != "" {
-		session = session.Where(options.Where, options.Conditions...)
+	if options.where != "" {
+		session = session.Where(options.where, options.conditions...)
 	}
 
-	if len(options.PluckList) > 0 {
+	if len(options.selectList) > 0 {
 		var buf bytes.Buffer
-		for _, col := range options.PluckList {
+		for _, col := range options.selectList {
 			buf.WriteString(col)
 			buf.WriteByte(',')
 		}
@@ -162,7 +162,7 @@ func (order *Order) GetPageOrder(models interface{}) []QueryOptions {
 	for _, orderItem := range order.Orders {
 		pageOrder := QueryOptions{}
 		if realColumn, ok := mapData[orderItem.Column]; ok {
-			pageOrder.Order = realColumn + " " + orderItem.OrderType.String()
+			pageOrder.order = realColumn + " " + orderItem.OrderType.String()
 		}
 		pageOrders = append(pageOrders, pageOrder)
 	}

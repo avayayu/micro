@@ -29,6 +29,7 @@ type DAO interface {
 	First(model, out interface{}, options ...QueryOptions) (Found bool, err error)
 	Find(model, out interface{}, options ...QueryOptions) error
 	Raw(sql string, out interface{}) error
+	NewQuery() QueryOptions
 	NewTransaction() *Transactions
 	AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions
 	ExecTrans(tran *Transactions) error
@@ -166,4 +167,12 @@ func (db *DB) GetMysql() *gorm.DB {
 
 func (db *DB) AutoMigrate(models ...interface{}) error {
 	return db.mysqlClient.AutoMigrate(models...)
+}
+
+func (db *DB) NewQuery() *QueryOptions {
+	return &QueryOptions{
+		conditions:    []interface{}{},
+		selectList:    []string{},
+		joinTableList: []string{},
+	}
 }
