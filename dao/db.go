@@ -29,7 +29,7 @@ type DAO interface {
 	First(model, out interface{}, options ...QueryOptions) (Found bool, err error)
 	Find(model, out interface{}, options ...QueryOptions) error
 	Raw(sql string, out interface{}) error
-	NewQuery() QueryOptions
+	NewQuery() *QueryOptions
 	NewTransaction() *Transactions
 	AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions
 	ExecTrans(tran *Transactions) error
