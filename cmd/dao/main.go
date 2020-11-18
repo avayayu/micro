@@ -1,6 +1,10 @@
 package main
 
-import "github.com/avayayu/micro/dao"
+import (
+	"fmt"
+
+	"github.com/avayayu/micro/dao"
+)
 
 func main() {
 	dbConfig := dao.DBOptions{
@@ -21,4 +25,12 @@ func main() {
 
 	db.Connect()
 
+	client := db.GetOracle()
+	datas := []struct {
+		DBID string `gorm:"DBID"`
+	}{}
+	if err := client.Raw("select * from AUDSYS2").Select("DBID", &datas).Error; err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(len(datas))
 }

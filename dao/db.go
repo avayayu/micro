@@ -41,6 +41,7 @@ type DAO interface {
 	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
 	GetMongo() *mongo.Client
 	GetMysql() *gorm.DB
+	GetOracle() *gorm.DB
 	SetLogger(logger *zap.Logger)
 }
 
@@ -185,6 +186,10 @@ func (db *DB) SetOracleConfig(c *OracleConfig) DAO {
 
 func (db *DB) GetMysql() *gorm.DB {
 	return db.mysqlClient
+}
+
+func (db *DB) GetOracle() *gorm.DB {
+	return db.oracleClient
 }
 
 func (db *DB) AutoMigrate(models ...interface{}) error {
