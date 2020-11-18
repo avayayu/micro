@@ -9,6 +9,7 @@ package dao
  * @输出一段不带属性的自定义信息
  */
 import (
+	"github.com/avayayu/micro/dao/oracle"
 	"github.com/avayayu/micro/logging"
 	_ "github.com/go-sql-driver/mysql" //加载mysql驱动给gorm
 	"go.mongodb.org/mongo-driver/mongo"
@@ -44,12 +45,14 @@ type DAO interface {
 
 //Database 数据库管理
 type DB struct {
-	logger       *zap.Logger
-	options      *DBOptions
-	mysqlClient  *gorm.DB
-	mongoClient  *mongo.Client
-	mysqlConfigs *MysqlConfig
-	mongoConfigs *MongoConfig
+	logger        *zap.Logger
+	options       *DBOptions
+	mysqlClient   *gorm.DB
+	oracleClient  *gorm.DB
+	mongoClient   *mongo.Client
+	mysqlConfigs  *MysqlConfig
+	mongoConfigs  *MongoConfig
+	oracleConfigs *OracleConfig
 }
 
 //NewDatabase 新建数据库连接
@@ -148,6 +151,19 @@ func (db *DB) Connect() DAO {
 		}
 	}
 
+	if db.options.Oracle {
+		if db.oracleConfigs != nil {
+			sqlFullConnection := db.oracleConfigs.String()
+			client, err := gorm.Open(oracle.Open(sqlFullConnection), &gorm.Config{})
+			if err != nil {
+				panic(err)
+			}
+			db.oracleClient = client
+		} else {
+			panic("oracle not configs")
+		}
+	}
+
 	return db
 }
 
@@ -158,6 +174,11 @@ func (db *DB) SetMysqlConfig(c *MysqlConfig) DAO {
 
 func (db *DB) SetMongoConfig(c *MongoConfig) DAO {
 	db.mongoConfigs = c
+	return db
+}
+
+func (db *DB) SetOracleConfig(c *OracleConfig) DAO {
+	db.oracleConfigs = c
 	return db
 }
 
@@ -174,5 +195,6 @@ func (db *DB) NewQuery() *QueryOptions {
 		conditions:    []interface{}{},
 		selectList:    []string{},
 		joinTableList: []string{},
+		order:         []string{},
 	}
 }

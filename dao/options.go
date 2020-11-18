@@ -3,6 +3,7 @@ package dao
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"reflect"
 	"strings"
 	"sync"
@@ -16,7 +17,7 @@ var orderMux sync.Mutex
 
 //QueryOptions 分页排序
 type QueryOptions struct {
-	order string
+	order []string
 	where string
 	//条件可能是一个列表 比如 where 为 id in (?)
 	conditions    []interface{}
@@ -41,6 +42,11 @@ func (options *QueryOptions) Joins(Table ...string) *QueryOptions {
 	return options
 }
 
+func (options *QueryOptions) Order(order ...string) *QueryOptions {
+	options.order = append(options.order, order...)
+	return options
+}
+
 func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 
 	if options.Ctx != nil {
@@ -51,8 +57,10 @@ func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 		session = session.Joins(table)
 	}
 
-	if options.order != "" {
-		session = session.Order(options.order)
+	if len(options.order) != 0 {
+		for _, order := range options.order {
+			session = session.Order(order)
+		}
 	}
 	if options.where != "" {
 		session = session.Where(options.where, options.conditions...)
@@ -162,7 +170,7 @@ func (order *Order) GetPageOrder(models interface{}) []*QueryOptions {
 	for _, orderItem := range order.Orders {
 		pageOrder := QueryOptions{}
 		if realColumn, ok := mapData[orderItem.Column]; ok {
-			pageOrder.order = realColumn + " " + orderItem.OrderType.String()
+			pageOrder.order = append(pageOrder.order, fmt.Sprintf("%s %s"), realColumn, orderItem.OrderType.String())
 		}
 		pageOrders = append(pageOrders, &pageOrder)
 	}

@@ -3,8 +3,9 @@ package dao
 import "fmt"
 
 type DBOptions struct {
-	Mysql bool
-	Mongo bool
+	Mysql  bool
+	Mongo  bool
+	Oracle bool
 }
 
 type Base struct {
@@ -30,8 +31,18 @@ type MongoConfig struct {
 	FullConnectionString string `json:"fullConnection"`
 }
 
+type OracleConfig struct {
+	Base
+	FullConnectionString string `json:"fullConnection"`
+}
+
 func (c *MysqlConfig) String() string {
 	c.FullConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", c.UserName, c.Password, c.URL, c.Port, c.DBName)
+	return c.FullConnectionString
+}
+
+func (c *OracleConfig) String() string {
+	c.FullConnectionString = fmt.Sprintf("%s/%s@%s:%s/%s", c.UserName, c.Password, c.URL, c.Port, c.DBName)
 	return c.FullConnectionString
 }
 
