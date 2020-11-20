@@ -168,10 +168,13 @@ type injection struct {
 // NewServer returns a new blank Engine instance without any middleware attached.
 func NewServer(conf *ServerConfig) *Engine {
 	if conf == nil {
-		if !flag.Parsed() {
-			fmt.Fprint(os.Stderr, "[http] please call flag.Parse() before Init http server, some configure may not effect.\n")
+		conf = &ServerConfig{
+			Network:      "tcp",
+			Addr:         fmt.Sprintf("0.0.0.0:%s", "8080"),
+			Timeout:      ztime.Duration(time.Second * 60),
+			ReadTimeout:  ztime.Duration(time.Second * 60),
+			WriteTimeout: ztime.Duration(time.Second * 60),
 		}
-		conf = parseDSN(_httpDSN)
 	}
 	engine := &Engine{
 		RouterGroup: RouterGroup{
