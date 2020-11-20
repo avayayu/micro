@@ -36,7 +36,8 @@ var (
 )
 
 func init() {
-	addFlag(flag.CommandLine)
+	// addFlag(flag.CommandLine)
+	_httpDSN = "tcp://0.0.0.0:8000/?timeout=1s"
 }
 
 func addFlag(fs *flag.FlagSet) {
