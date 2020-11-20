@@ -45,7 +45,7 @@ func Get(t *testing.T, uri string, router *http.Engine) []byte {
 func PostForm(t *testing.T, uri string, param map[string]string, router *http.Engine) []byte {
 	// 构造post请求，表单数据以querystring的形式加在uri之后
 	req := httptest.NewRequest("POST", uri+ParseToStr(param), nil)
-
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	// 初始化响应
 	w := httptest.NewRecorder()
 
