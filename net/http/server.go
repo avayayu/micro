@@ -165,7 +165,7 @@ type injection struct {
 	handlers []HandlerFunc
 }
 
-// NewServer returns a new blank Engine instance without any middleware attached.
+// NewServer returns a new blank Engine instance without any middleware attached.asdasd
 func NewServer(conf *ServerConfig) *Engine {
 	if conf == nil {
 		conf = &ServerConfig{
