@@ -6,7 +6,6 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/cengsin/oracle v0.0.0-20201104083254-ee8e8c92232e
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/emirpasic/gods v1.12.0
 	github.com/fsnotify/fsnotify v1.4.9
