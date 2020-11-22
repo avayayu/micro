@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/avayayu/micro/net/http"
-	"github.com/stretchr/testify/assert"
 )
 
 type ResultType uint8
@@ -40,7 +39,6 @@ func Get(t *testing.T, uri string, router *http.Engine) (int, []byte) {
 
 	// 调用相应的handler接口
 	router.ServeHTTP(w, req)
-	assert.Equal(t, codeExpect, w.Code)
 	// 提取响应
 	result := w.Result()
 	defer result.Body.Close()
@@ -60,7 +58,6 @@ func PostForm(t *testing.T, uri string, param map[string]string, router *http.En
 
 	// 调用相应handler接口
 	router.ServeHTTP(w, req)
-	assert.Equal(t, codeExpect, w.Code)
 	// 提取响应
 	result := w.Result()
 	defer result.Body.Close()
@@ -83,7 +80,6 @@ func PostJson(t *testing.T, uri string, param interface{}, router *http.Engine) 
 
 	// 调用相应的handler接口
 	router.ServeHTTP(w, req)
-	assert.Equal(t, codeExpect, w.Code)
 	// 提取响应
 	result := w.Result()
 	defer result.Body.Close()
