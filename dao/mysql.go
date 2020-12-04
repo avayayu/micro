@@ -24,17 +24,17 @@ func (db *DB) Create(model interface{}, createdBy string, value interface{}) err
 		val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
 		val.SetString(createdBy)
 	}
-	return db.mysqlClient.Omit(clause.Associations).Model(model).Create(value).Error
+	return db.db.Omit(clause.Associations).Model(model).Create(value).Error
 }
 
 // Save 保存更新
 func (db *DB) Save(value interface{}) error {
-	return db.mysqlClient.Omit(clause.Associations).Save(value).Error
+	return db.db.Omit(clause.Associations).Save(value).Error
 }
 
 // Updates 更新模型
 func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
-	session := db.mysqlClient.Omit(clause.Associations).Model(model)
+	session := db.db.Omit(clause.Associations).Model(model)
 	if len(filters) > 0 {
 
 		if len(filters)%2 != 0 {
@@ -52,7 +52,7 @@ func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, fi
 
 // First 符合条件的第一行
 func (db *DB) First(model, out interface{}, options ...*QueryOptions) (Found bool, err error) {
-	op := db.mysqlClient.Model(model)
+	op := db.db.Model(model)
 	for _, option := range options {
 		op = option.ParseQuery(op)
 	}
@@ -72,12 +72,12 @@ func (db *DB) Raw(sql string, out interface{}) error {
 	if reflect.TypeOf(out).Kind() != reflect.Ptr {
 		panic("out must be ptr")
 	}
-	return db.mysqlClient.Raw(sql).Scan(out).Error
+	return db.db.Raw(sql).Scan(out).Error
 }
 
 // Find 根据条件查询到的数据
 func (db *DB) Find(model, out interface{}, options ...*QueryOptions) error {
-	op := db.mysqlClient.Model(model)
+	op := db.db.Model(model)
 	for _, option := range options {
 		op = option.ParseQuery(op)
 	}
@@ -88,9 +88,9 @@ func (db *DB) Find(model, out interface{}, options ...*QueryOptions) error {
 func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...*QueryOptions) error {
 	var data *gorm.DB
 	if autoLoad {
-		data = db.mysqlClient.Preload(clause.Associations).Model(model)
+		data = db.db.Preload(clause.Associations).Model(model)
 	} else {
-		data = db.mysqlClient.Model(model)
+		data = db.db.Model(model)
 	}
 	if where != nil {
 		data = data.Where(where)
@@ -116,7 +116,7 @@ func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, to
 // GetPage 从数据库中分页获取数据
 func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...*QueryOptions) error {
 
-	var data *gorm.DB = db.mysqlClient.Debug()
+	var data *gorm.DB = db.db.Debug()
 
 	if autoLoad {
 		data = data.Preload(clause.Associations).Model(model)
@@ -155,7 +155,7 @@ func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interfa
 //GetPageByRaw 根据原始的sql进行分页查询
 func (db *DB) GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error {
 
-	data := db.mysqlClient.Raw(sql, where...)
+	data := db.db.Raw(sql, where...)
 
 	err := data.Count(totalCount).Error
 
@@ -171,11 +171,11 @@ func (db *DB) GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int,
 
 //PluckList 查询某表中的某一列 切片
 func (db *DB) PluckList(model, where interface{}, out interface{}, fieldName string) error {
-	return db.mysqlClient.Model(model).Where(where).Pluck(fieldName, out).Error
+	return db.db.Model(model).Where(where).Pluck(fieldName, out).Error
 }
 
 func (db *DB) Delete(model interface{}, deletedBy string, filters ...interface{}) error {
-	var op *gorm.DB = db.mysqlClient.Model(model)
+	var op *gorm.DB = db.db.Model(model)
 
 	if len(filters)%2 != 0 {
 		panic("filters length must be even")
@@ -198,7 +198,7 @@ func CheckError(err error) (bool, error) {
 func (db *DB) NewTransaction() *Transactions {
 
 	trans := Transactions{
-		session: db.mysqlClient.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
+		session: db.db.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
 	}
 	return &trans
 }

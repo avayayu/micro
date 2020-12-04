@@ -2,58 +2,52 @@ package dao
 
 import "fmt"
 
-type DBOptions struct {
-	Mysql  bool
-	Mongo  bool
-	Oracle bool
+type DBType uint8
+
+const (
+	_ DBType = iota
+	MYSQL
+	ORACLE
+	MONGO
+	SQLITE
+)
+
+type DBConfigs struct {
+	URL                            string `json:"URL" yaml:"URL"`
+	Port                           string `json:"Port" yarml:"Port"`
+	UserName                       string `json:"userName" yaml:"userName"`
+	Password                       string `json:"password" yaml:"password"`
+	DBName                         string `json:"dbName" yaml:"DBName"`
+	DBType                         DBType `json:"dbType"`
+	SQLITEPATH                     string `json:"SQLITEPATH"`
+	FullConnectionString           string `json:"fullConnection"`
+	MysqlOpenPrometheus            bool   `json:"openPrometheus"`
+	MysqlPrometheusPort            int    `json:"prometheusPort"`
+	MysqlPrometheusRefreshInterval int    `json:"prometheusRefreshInterval"`
+	MongoIsReplicated              bool   `json:"isReplicated"`
+	MongoReplicatedName            string `json:"replicatedName"`
+	OracleServiceName              string `json:"serviceName"`
+	OracleLibPath                  string `json:"libPath"`
 }
 
-type Base struct {
-	URL      string `json:"URL" yaml:"URL"`
-	Port     string `json:"Port" yarml:"Port"`
-	UserName string `json:"userName" yaml:"userName"`
-	Password string `json:"password" yaml:"password"`
-	DBName   string `json:"dbName" yaml:"DBName"`
-}
-
-type MysqlConfig struct {
-	Base
-	FullConnectionString      string `json:"fullConnection"`
-	OpenPrometheus            bool   `json:"openPrometheus"`
-	PrometheusPort            int    `json:"prometheusPort"`
-	PrometheusRefreshInterval int    `json:"prometheusRefreshInterval"`
-}
-
-type MongoConfig struct {
-	Base
-	IsReplicated         bool   `json:"isReplicated"`
-	ReplicatedName       string `json:"replicatedName"`
-	FullConnectionString string `json:"fullConnection"`
-}
-
-type OracleConfig struct {
-	Base
-	ServiceName          string `json:"serviceName"`
-	LibPath              string `json:"libPath"`
-	FullConnectionString string `json:"fullConnection"`
-}
-
-func (c *MysqlConfig) String() string {
-	c.FullConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", c.UserName, c.Password, c.URL, c.Port, c.DBName)
-	return c.FullConnectionString
-}
-
-func (c *OracleConfig) String() string {
-	c.FullConnectionString = fmt.Sprintf("%s/%s@%s:%s/%s", c.UserName, c.Password, c.URL, c.Port, c.DBName)
-	fmt.Println(c.FullConnectionString)
-	return c.FullConnectionString
-}
-
-func (c *MongoConfig) String() string {
-	if c.IsReplicated {
-		c.FullConnectionString = fmt.Sprintf("mongodb://%s/?replicaSet=%s", c.URL, c.ReplicatedName)
-	} else {
-		c.FullConnectionString = fmt.Sprintf("mongodb://%s:%s", c.URL, c.Port)
+func (c *DBConfigs) String() string {
+	switch c.DBType {
+	case MYSQL:
+		c.FullConnectionString = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", c.UserName, c.Password, c.URL, c.Port, c.DBName)
+		return c.FullConnectionString
+	case ORACLE:
+		c.FullConnectionString = fmt.Sprintf("%s/%s@%s:%s/%s", c.UserName, c.Password, c.URL, c.Port, c.DBName)
+		return c.FullConnectionString
+	case MONGO:
+		if c.MongoIsReplicated {
+			c.FullConnectionString = fmt.Sprintf("mongodb://%s/?replicaSet=%s", c.URL, c.MongoReplicatedName)
+		} else {
+			c.FullConnectionString = fmt.Sprintf("mongodb://%s:%s", c.URL, c.Port)
+		}
+		return c.FullConnectionString
+	case SQLITE:
+		return c.SQLITEPATH
 	}
-	return c.FullConnectionString
+	panic("DBType must be setting")
+
 }

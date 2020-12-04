@@ -73,7 +73,7 @@ func (db *DB) NewMongoClient(mongodbFullURL, userName, password string) (*mongo.
 			AuthSource: "admin", Username: userName, Password: password,
 		})
 	}
-	if db.mongoConfigs.IsReplicated {
+	if db.config.MongoIsReplicated {
 		moptions = moptions.SetReadConcern(readconcern.Available())
 		//写策略 所有数据写入副本集所有节点 才完成 性能慢 但数据一致性高
 		moptions = moptions.SetWriteConcern(writeconcern.New(writeconcern.W(3)))

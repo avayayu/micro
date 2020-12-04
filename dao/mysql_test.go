@@ -6,22 +6,22 @@ import (
 	"testing"
 )
 
-var dao *DB
+var dao DAO
 
 func TestMain(m *testing.M) {
-	dao = newDatabase(&DBOptions{Mysql: true, Mongo: false})
-	config := MysqlConfig{
-		Base: Base{
-			URL:      "192.168.100.128",
-			Port:     "33309",
-			UserName: "root",
-			Password: "bfr123123",
-			DBName:   "cloudbrain_test",
-		},
-		OpenPrometheus: false,
+
+	config := DBConfigs{
+
+		URL:                 "192.168.100.128",
+		Port:                "33309",
+		UserName:            "root",
+		Password:            "bfr123123",
+		DBName:              "cloudbrain_test",
+		MysqlOpenPrometheus: false,
 	}
 
-	dao.SetMysqlConfig(&config).Connect()
+	dao = NewDatabase(&config)
+
 	dao.AutoMigrate(&DeviceType{}, &DeviceFactory{}, &Device{})
 
 	flag.Parse()
@@ -46,7 +46,7 @@ func TestDB_Create(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		db      *DB
+		db      DAO
 		args    args
 		wantErr bool
 	}{
