@@ -4,14 +4,15 @@ import (
 	"flag"
 	"os"
 	"testing"
+
+	"github.com/avayayu/micro/dao/drivers/mysql"
 )
 
 var dao DAO
 
 func TestMain(m *testing.M) {
 
-	config := DBConfigs{
-
+	configs := mysql.MysqlConfigs{
 		URL:                 "192.168.100.128",
 		Port:                "33309",
 		UserName:            "root",
@@ -20,7 +21,11 @@ func TestMain(m *testing.M) {
 		MysqlOpenPrometheus: false,
 	}
 
-	dao = NewDatabase(&config)
+	mysqlDrvicer := &mysql.MysqlDriver{
+		Configs: &configs,
+	}
+
+	dao = NewDatabase(mysqlDrvicer)
 
 	dao.AutoMigrate(&DeviceType{}, &DeviceFactory{}, &Device{})
 
@@ -96,7 +101,7 @@ func TestDB_Updates(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		db      *DB
+		db      DAO
 		args    args
 		wantErr bool
 	}{
@@ -130,7 +135,7 @@ func TestDB_First(t *testing.T) {
 	}
 	tests := []struct {
 		name         string
-		db           *DB
+		db           DAO
 		args         args
 		wantNotFound bool
 		wantErr      bool
@@ -183,7 +188,7 @@ func TestDB_Raw(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		db      *DB
+		db      DAO
 		args    args
 		wantErr bool
 	}{
@@ -218,7 +223,7 @@ func TestDB_Find(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		db      *DB
+		db      DAO
 		args    args
 		wantErr bool
 	}{

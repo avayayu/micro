@@ -170,7 +170,7 @@ func (order *Order) GetPageOrder(models interface{}) []*QueryOptions {
 	for _, orderItem := range order.Orders {
 		pageOrder := QueryOptions{}
 		if realColumn, ok := mapData[orderItem.Column]; ok {
-			pageOrder.order = append(pageOrder.order, fmt.Sprintf("%s %s"), realColumn, orderItem.OrderType.String())
+			pageOrder.order = append(pageOrder.order, fmt.Sprintf("%s %s", realColumn, orderItem.OrderType.String()))
 		}
 		pageOrders = append(pageOrders, &pageOrder)
 	}

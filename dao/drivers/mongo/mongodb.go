@@ -1,11 +1,10 @@
-package drivers
+package mongo
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/avayayu/micro/dao"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readconcern"
@@ -14,16 +13,37 @@ import (
 	"gorm.io/gorm"
 )
 
-type MongoDrivers struct{}
+type MongoDrivers struct {
+	Configs *MongoConfigs
+}
 
-func (d *MongoDrivers) Connect(config *dao.DBConfigs) (*gorm.DB, *mongo.Client, error) {
+type MongoConfigs struct {
+	URL                  string `json:"URL" yaml:"URL"`
+	Port                 string `json:"Port" yarml:"Port"`
+	UserName             string `json:"userName" yaml:"userName"`
+	Password             string `json:"password" yaml:"password"`
+	DBName               string `json:"dbName" yaml:"DBName"`
+	MongoIsReplicated    bool   `json:"isReplicated"`
+	MongoReplicatedName  string `json:"replicatedName"`
+	FullConnectionString string `json:"fullConnectionString"`
+}
 
-	sqlFullConnection := config.String()
-	client, err := newMongoClient(sqlFullConnection, config.UserName, config.Password, config.MongoIsReplicated)
+func (c *MongoConfigs) String() string {
+	if c.MongoIsReplicated {
+		c.FullConnectionString = fmt.Sprintf("mongodb://%s/?replicaSet=%s", c.URL, c.MongoReplicatedName)
+	} else {
+		c.FullConnectionString = fmt.Sprintf("mongodb://%s:%s", c.URL, c.Port)
+	}
+	return c.FullConnectionString
+}
+
+func (d *MongoDrivers) Connect() (*gorm.DB, *mongo.Client, error) {
+
+	sqlFullConnection := d.Configs.String()
+	client, err := newMongoClient(sqlFullConnection, d.Configs.UserName, d.Configs.Password, d.Configs.MongoIsReplicated)
 	if err != nil {
 		panic(err)
 	}
-
 	return nil, client, nil
 }
 

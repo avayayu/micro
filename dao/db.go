@@ -10,19 +10,13 @@ package dao
  */
 import (
 	"github.com/avayayu/micro/logging"
-	_ "github.com/go-sql-driver/mysql" //加载mysql驱动给gorm
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-type Driver interface {
-	Connect(config *DBConfigs) (*gorm.DB, *mongo.Client, error)
-}
-
 type DAO interface {
 	Connect() DAO
-	SetConfig(c *DBConfigs) DAO
 	AutoMigrate(models ...interface{}) error
 	Create(model interface{}, createdBy string, value interface{}) error
 	Updates(model interface{}, updatedBy string, value interface{}, filters ...interface{}) error
@@ -46,31 +40,35 @@ type DAO interface {
 //Database 数据库管理
 type DB struct {
 	logger      *zap.Logger
-	config      *DBConfigs
 	db          *gorm.DB
 	mongoClient *mongo.Client
 	driver      Driver
 }
 
+// type DBConfigs struct {
+// 	logger
+// }
+
 //NewDatabase 新建数据库连接
 //如果path 文件不存在，那么重建数据结构
-func NewDatabase(configs *DBConfigs) DAO {
+func NewDatabase(driver Driver) DAO {
 
 	database := &DB{
-		config: configs,
 		logger: logging.NewSimpleLogger(),
 	}
+
+	db, m, err := driver.Connect()
+	if err != nil {
+		database.logger.Error("数据库连接错误", zap.Error(err))
+	}
+	database.db = db
+	database.mongoClient = m
 	return database
 }
 
 //SetLogger 设置外部logger
 func (db *DB) SetLogger(logger *zap.Logger) {
 	db.logger = logger
-}
-
-func (db *DB) SetConfig(c *DBConfigs) DAO {
-	db.config = c
-	return db
 }
 
 //GetMongo 检测是否连接没连接 再次连接
