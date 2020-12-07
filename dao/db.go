@@ -34,6 +34,7 @@ type DAO interface {
 	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
 
 	GetDB() *gorm.DB
+	GetMongo() *mongo.Client
 	SetLogger(logger *zap.Logger)
 }
 
