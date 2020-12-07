@@ -55,3 +55,7 @@ func (d *MysqlDriver) Connect() (*gorm.DB, *mongo.Client, error) {
 
 	return client, nil, nil
 }
+
+func (d *MysqlDriver) Type() uint8 {
+	return 1
+}

@@ -47,6 +47,10 @@ func (d *MongoDrivers) Connect() (*gorm.DB, *mongo.Client, error) {
 	return nil, client, nil
 }
 
+func (d *MongoDrivers) Type() uint8 {
+	return 2
+}
+
 //NewMongoClient 根据config中的mongodb信息初始化连接
 func newMongoClient(mongodbFullURL, userName, password string, IsReplicated bool) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(mongodbFullURL)

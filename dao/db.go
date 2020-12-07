@@ -44,6 +44,7 @@ type DB struct {
 	db          *gorm.DB
 	mongoClient *mongo.Client
 	driver      Driver
+	dbType      DBType
 }
 
 // type DBConfigs struct {
@@ -64,6 +65,9 @@ func NewDatabase(driver Driver) DAO {
 	}
 	database.db = db
 	database.mongoClient = m
+
+	database.dbType = DBType(driver.Type())
+
 	return database
 }
 

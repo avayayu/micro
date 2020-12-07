@@ -36,3 +36,7 @@ func (d *OralceDriver) Connect() (*gorm.DB, *mongo.Client, error) {
 	return client, nil, nil
 
 }
+
+func (d *OralceConfigs) Type() uint8 {
+	return 1
+}
