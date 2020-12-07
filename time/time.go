@@ -57,7 +57,7 @@ func (m *Time) RedisScan(src interface{}) error {
 	}
 
 	date := strings.ReplaceAll(string(bs), "\"", "")
-	tempTime, err := time.Parse("2006-01-02 15:04:05", date)
+	tempTime, err := time.ParseInLocation("2006-01-02 15:04:05", date, time.Local)
 
 	if err != nil {
 		if date == "" {
@@ -80,7 +80,7 @@ func (m *Time) RedisScan(src interface{}) error {
 func (m *Time) UnmarshalJSON(data []byte) error {
 
 	date := strings.ReplaceAll(string(data), "\"", "")
-	tempTime, err := time.Parse("2006-01-02 15:04:05", date)
+	tempTime, err := time.ParseInLocation("2006-01-02 15:04:05", date, time.Local)
 
 	if err != nil {
 		if date == "" {
@@ -108,6 +108,10 @@ func (m Time) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return m.Time, nil
+}
+
+func (m Time) RedisValue() string {
+	return m.Time.Format("2006-01-02 15:04:05")
 }
 
 //String 返回JSONTime的字符串格式 YYYY-MM-DD HH:MM:SS
