@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type MongoDrivers struct {
+type MongoDriver struct {
 	Configs *MongoConfigs
 }
 
@@ -37,7 +37,7 @@ func (c *MongoConfigs) String() string {
 	return c.FullConnectionString
 }
 
-func (d *MongoDrivers) Connect() (*gorm.DB, *mongo.Client, error) {
+func (d *MongoDriver) Connect() (*gorm.DB, *mongo.Client, error) {
 
 	sqlFullConnection := d.Configs.String()
 	client, err := newMongoClient(sqlFullConnection, d.Configs.UserName, d.Configs.Password, d.Configs.MongoIsReplicated)
@@ -47,7 +47,7 @@ func (d *MongoDrivers) Connect() (*gorm.DB, *mongo.Client, error) {
 	return nil, client, nil
 }
 
-func (d *MongoDrivers) Type() uint8 {
+func (d *MongoDriver) Type() uint8 {
 	return 2
 }
 
