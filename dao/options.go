@@ -47,6 +47,10 @@ func (options *QueryOptions) Order(order ...string) *QueryOptions {
 	return options
 }
 
+// func (options *QueryOptions) PreLoad(Table ...string) *QueryOptions {
+
+// }
+
 func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 
 	if options.Ctx != nil {

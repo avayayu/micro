@@ -54,7 +54,7 @@ func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, fi
 	} else {
 		db.logger.Warn("updates data in no condition")
 	}
-	return session.Updates(value).Error
+	return session.Update("updated_by", UpdatesBy).Updates(value).Error
 }
 
 // First 符合条件的第一行
