@@ -23,6 +23,7 @@ type QueryOptions struct {
 	conditions    []interface{}
 	selectList    []string
 	joinTableList []string
+	preloadList   []string
 	Ctx           context.Context
 }
 
@@ -47,9 +48,10 @@ func (options *QueryOptions) Order(order ...string) *QueryOptions {
 	return options
 }
 
-// func (options *QueryOptions) PreLoad(Table ...string) *QueryOptions {
-
-// }
+func (options *QueryOptions) PreLoad(Attrs ...string) *QueryOptions {
+	options.preloadList = append(options.preloadList, Attrs...)
+	return options
+}
 
 func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 
@@ -59,6 +61,10 @@ func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 
 	for _, table := range options.joinTableList {
 		session = session.Joins(table)
+	}
+
+	for _, attr := range options.preloadList {
+		session = session.Preload(attr)
 	}
 
 	if len(options.order) != 0 {
