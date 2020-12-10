@@ -23,6 +23,7 @@ type DAO interface {
 	Delete(model interface{}, deletedBy string, filters ...interface{}) error
 	First(model, out interface{}, options ...*QueryOptions) (Found bool, err error)
 	Find(model, out interface{}, options ...*QueryOptions) error
+	Count(model interface{}, querys ...*QueryOptions) (count int64)
 	Raw(sql string, out interface{}) error
 	NewQuery() *QueryOptions
 	NewTransaction() *Transactions

@@ -39,6 +39,19 @@ func (db *DB) Save(value interface{}) error {
 	return db.db.Omit(clause.Associations).Save(value).Error
 }
 
+//Count 根据querys中的where进行数量的统计
+func (db *DB) Count(model interface{}, querys ...*QueryOptions) (count int64) {
+
+	session := db.db.Model(model)
+	for _, query := range querys {
+		session = session.Where(query.where, query.conditions...)
+	}
+
+	session.Count(&count)
+	return
+
+}
+
 // Updates 更新模型
 func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
 	session := db.db.Omit(clause.Associations).Model(model)
