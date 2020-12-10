@@ -8,10 +8,9 @@ import (
 	"github.com/avayayu/micro/dao"
 )
 
-
 type HttpRequest interface {
 	GetPageParameter() (int, int, *dao.Order, error)
-	GetPageFilters(model interface{}) (*dao.Filter, error)
+	GetPageFilters(parameter interface{}) (*dao.Filter, error)
 }
 
 //GetPageParameter 从GET参数中获取分页参数以及排序参数
@@ -43,7 +42,8 @@ func (c *Context) GetPageParameter() (int, int, *dao.Order, error) {
 }
 
 //GetPageParameter 从GET参数中获取分页参数以及排序参数
-func (c *Context) GetPageFilters(model interface{}) (*dao.Filter, error) {
+//parameter 对应请求参数类型
+func (c *Context) GetPageFilters(parameter interface{}) (*dao.Filter, error) {
 	filtersJSON := c.QueryArray("filters[]")
 	filters := dao.Filter{}
 
@@ -56,7 +56,7 @@ func (c *Context) GetPageFilters(model interface{}) (*dao.Filter, error) {
 		if err := json.Unmarshal([]byte(filter), &filerItem); err != nil {
 			return nil, err
 		}
-		if !dao.JudgeFilters(model, filerItem.Column, filerItem.FilterType) {
+		if !dao.JudgeFilters(parameter, filerItem.Column, filerItem.FilterType) {
 			return nil, errors.New("the field can not used to filter")
 		}
 		filters.FilterItems = append(filters.FilterItems, &filerItem)

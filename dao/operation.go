@@ -92,13 +92,9 @@ func (db *DB) Find(model, out interface{}, options ...*QueryOptions) error {
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...*QueryOptions) error {
+func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
 	var data *gorm.DB
-	if autoLoad {
-		data = db.db.Preload(clause.Associations).Model(model)
-	} else {
-		data = db.db.Model(model)
-	}
+
 	if where != nil {
 		data = data.Where(where)
 	}
@@ -121,15 +117,10 @@ func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, to
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, autoLoad bool, options ...*QueryOptions) error {
+func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
 
-	var data *gorm.DB = db.db.Debug()
+	var data *gorm.DB = db.db
 
-	if autoLoad {
-		data = data.Preload(clause.Associations).Model(model)
-	} else {
-		data = data.Model(model)
-	}
 	if filters != nil {
 		for _, item := range filters.FilterItems {
 			condition, cri, err := item.WhereValue(model)

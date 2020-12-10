@@ -53,6 +53,69 @@ func (options *QueryOptions) PreLoad(Attrs ...string) *QueryOptions {
 	return options
 }
 
+//Filter 将对外的参数转化为我们可以识别的DB Where语句
+func (options *QueryOptions) Filter(parameter interface{}, filter *Filter) *QueryOptions {
+	if filter != nil {
+		for _, item := range filter.FilterItems {
+			condition, cri, err := item.WhereValue(parameter)
+			if err != nil {
+				continue
+			}
+			options = options.WhereQuery(condition, cri)
+		}
+	}
+	return options
+}
+
+//ParseOrder 将从请求中剥离的Order参数转化为认识的db的排序
+//规则为 tag db:"Column:列名" 如果没有添加标记 则会自动跳过
+func (options *QueryOptions) ParseOrder(parameter interface{}, order *Order) *QueryOptions {
+	if reflect.TypeOf(parameter).Kind() != reflect.Ptr {
+		panic("models must be a ptr")
+	}
+
+	tableName := lib.GetTypeFullName(parameter)
+
+	orderMux.Lock()
+	defer orderMux.Unlock()
+	if JSONColumn == nil {
+		JSONColumn = make(map[string]map[string]string)
+	}
+	var mapData map[string]string = map[string]string{}
+	if _, ok := JSONColumn[tableName]; !ok {
+		rType := reflect.TypeOf(parameter).Elem()
+		for i := 0; i < rType.NumField(); i++ {
+			t := rType.Field(i)
+			jsonKey := t.Tag.Get("json")
+			if jsonKey == "-" {
+				continue
+			}
+			column := t.Tag.Get("db")
+			if column != "" {
+				gormArr := strings.Split(column, ";")
+				for _, field := range gormArr {
+					if strings.Contains(field, "Column") {
+						fieldArray := strings.Split(field, ":")
+						mapData[jsonKey] = fieldArray[1]
+					}
+				}
+			}
+		}
+		JSONColumn[tableName] = mapData
+	}
+	mapData = JSONColumn[tableName]
+
+	if order.Orders == nil {
+		return nil
+	}
+	for _, orderItem := range order.Orders {
+		if realColumn, ok := mapData[orderItem.Column]; ok {
+			options.Order(fmt.Sprintf("%s %s", realColumn, orderItem.OrderType.String()))
+		}
+	}
+	return options
+}
+
 func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 
 	if options.Ctx != nil {
@@ -138,7 +201,7 @@ func (order *Order) String() string {
 }
 
 //GetPageOrder 构造GetPageOrder
-func (order *Order) GetPageOrder(models interface{}) []*QueryOptions {
+func (order *Order) GetPageOrder(models interface{}) *QueryOptions {
 	if reflect.TypeOf(models).Kind() != reflect.Ptr {
 		panic("models must be a ptr")
 	}
@@ -159,7 +222,7 @@ func (order *Order) GetPageOrder(models interface{}) []*QueryOptions {
 			if jsonKey == "-" {
 				continue
 			}
-			column := t.Tag.Get("gorm")
+			column := t.Tag.Get("db")
 			if column != "" {
 				gormArr := strings.Split(column, ";")
 				for _, field := range gormArr {
@@ -173,17 +236,15 @@ func (order *Order) GetPageOrder(models interface{}) []*QueryOptions {
 		JSONColumn[tableName] = mapData
 	}
 	mapData = JSONColumn[tableName]
-	var pageOrders []*QueryOptions
+	var pageOrder *QueryOptions
 	if order.Orders == nil {
 		return nil
 	}
 	for _, orderItem := range order.Orders {
 		pageOrder := QueryOptions{}
 		if realColumn, ok := mapData[orderItem.Column]; ok {
-			pageOrder.order = append(pageOrder.order, fmt.Sprintf("%s %s", realColumn, orderItem.OrderType.String()))
+			pageOrder.Order(fmt.Sprintf("%s %s", realColumn, orderItem.OrderType.String()))
 		}
-		pageOrders = append(pageOrders, &pageOrder)
 	}
-
-	return pageOrders
+	return pageOrder
 }
