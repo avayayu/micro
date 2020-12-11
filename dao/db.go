@@ -67,8 +67,6 @@ func NewDatabase(driver Driver) DAO {
 	database.db = db
 	database.mongoClient = m
 
-	database.dbType = DBType(driver.Type())
-
 	return database
 }
 
