@@ -12,25 +12,19 @@ import (
 
 // Create 创建某模型一行
 func (db *DB) Create(model interface{}, createdBy string, value interface{}) error {
-	switch db.dbType {
-	case GORMDB:
-		if reflect.TypeOf(value).Kind() != reflect.Ptr {
-			panic("value must be ptr")
-		}
 
-		typ := reflect.TypeOf(value).Elem()
-		if _, ok := typ.FieldByName("CreatedBy"); !ok {
-			return errors.New("model is not a bfr micro models")
-		} else {
-			val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
-			val.SetString(createdBy)
-		}
-		return db.db.Omit(clause.Associations).Model(model).Create(value).Error
-	case MONGO:
-
+	if reflect.TypeOf(value).Kind() != reflect.Ptr {
+		panic("value must be ptr")
 	}
 
-	return NoDBTYPE
+	typ := reflect.TypeOf(value).Elem()
+	if _, ok := typ.FieldByName("CreatedBy"); !ok {
+		return errors.New("model is not a bfr micro models")
+	} else {
+		val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
+		val.SetString(createdBy)
+	}
+	return db.db.Omit(clause.Associations).Model(model).Create(value).Error
 
 }
 

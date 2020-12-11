@@ -15,5 +15,4 @@ const (
 
 type Driver interface {
 	Connect() (*gorm.DB, *mongo.Client, error)
-	Type() uint8
 }
