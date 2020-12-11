@@ -33,6 +33,8 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.3.0
 	gorm.io/driver/mysql v1.0.2
-	gorm.io/gorm v1.20.6
+	gorm.io/driver/sqlite v1.1.4
+	gorm.io/driver/sqlserver v1.0.5
+	gorm.io/gorm v1.20.7
 	gorm.io/plugin/prometheus v0.0.0-20201110055837-cd7810121407
 )
