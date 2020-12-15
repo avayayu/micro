@@ -2,22 +2,35 @@ package dao
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/avayayu/micro/dao/drivers/mysql"
+	"github.com/avayayu/micro/models"
 )
 
 var dao DAO
+
+type Role struct {
+	models.Model
+	RoleName   string `json:"roleName" gorm:"Column:role_name;index:role_rolename_index"`        //角色名
+	Describe   string `json:"describe" gorm:"Column:describe;"`                                  //角色用途
+	RoleStatus bool   `json:"roleStatus" gorm:"Column:role_status;index:role_role_status_index"` //启用停用
+}
+
+func (t Role) TableName() string {
+	return "auth_role"
+}
 
 func TestMain(m *testing.M) {
 
 	configs := mysql.MysqlConfigs{
 		URL:                 "192.168.100.128",
-		Port:                "33309",
+		Port:                "3307",
 		UserName:            "root",
 		Password:            "bfr123123",
-		DBName:              "cloudbrain_test",
+		DBName:              "cloudbrain",
 		MysqlOpenPrometheus: false,
 	}
 
@@ -84,7 +97,7 @@ func TestDB_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.db.Create(tt.args.model, tt.args.createdBy, tt.args.value); (err != nil) != tt.wantErr {
+			if err := tt.db.NewQuery().Create(tt.args.model, tt.args.createdBy, tt.args.value); (err != nil) != tt.wantErr {
 				t.Errorf("DB.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -120,7 +133,7 @@ func TestDB_Updates(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.db.Updates(tt.args.model, tt.args.UpdatesBy, tt.args.value, tt.args.filters...); (err != nil) != tt.wantErr {
+			if err := tt.db.NewQuery().Updates(tt.args.model, tt.args.UpdatesBy, tt.args.value, tt.args.filters...); (err != nil) != tt.wantErr {
 				t.Errorf("DB.Updates() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -166,7 +179,7 @@ func TestDB_First(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotNotFound, err := tt.db.First(tt.args.model, tt.args.out, tt.args.options...)
+			gotNotFound, err := tt.db.NewQuery().First(tt.args.model, tt.args.out, tt.args.options...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DB.First() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -205,7 +218,7 @@ func TestDB_Raw(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.db.Raw(tt.args.sql, tt.args.out); (err != nil) != tt.wantErr && len(deviceType) == 1 {
+			if err := tt.db.NewQuery().Raw(tt.args.sql, tt.args.out); (err != nil) != tt.wantErr && len(deviceType) == 1 {
 				t.Errorf("DB.Raw() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -215,7 +228,7 @@ func TestDB_Raw(t *testing.T) {
 func TestDB_Find(t *testing.T) {
 
 	deviceType := []DeviceType{}
-
+	roles := []Role{}
 	type args struct {
 		model   interface{}
 		out     interface{}
@@ -234,7 +247,7 @@ func TestDB_Find(t *testing.T) {
 			args: args{
 				model:   &DeviceType{},
 				out:     &deviceType,
-				options: []*QueryOptions{{where: "device_type_name=?", conditions: []interface{}{"aider_01"}}},
+				options: []*QueryOptions{{where: "device_type_name=?", conditions: []interface{}{"外骨骼"}}},
 			},
 			wantErr: false,
 		},
@@ -248,11 +261,71 @@ func TestDB_Find(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "Role_Find_0",
+			db:   dao,
+			args: args{
+				model: &Role{},
+				out:   &roles,
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.db.Find(tt.args.model, tt.args.out, tt.args.options...); (err != nil) != tt.wantErr && (tt.name == "deviceType_Find" && len(deviceType) == 1) && (tt.name == "deviceType_Find_0" && len(deviceType) == 0) {
+			if err := tt.db.NewQuery().Find(tt.args.model, tt.args.out, tt.args.options...); (err != nil) != tt.wantErr && (tt.name == "deviceType_Find" && len(deviceType) == 1) && (tt.name == "deviceType_Find_0" && len(deviceType) == 0) {
 				t.Errorf("DB.Find() error = %v, wantErr %v", err, tt.wantErr)
+			} else {
+				fmt.Println(tt.args.out)
+			}
+		})
+	}
+}
+
+func TestQueryOptions_FindToMap(t *testing.T) {
+
+	type args struct {
+		model   interface{}
+		out     interface{}
+		column  string
+		options []*QueryOptions
+	}
+	outData1 := map[string]Role{}
+	outData2 := map[string]*Role{}
+	tests := []struct {
+		name    string
+		query   *QueryOptions
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:  "map to Role test",
+			query: dao.NewQuery(),
+			args: args{
+				model:  &Role{},
+				out:    &outData1,
+				column: "RoleName",
+			},
+			wantErr: false,
+		},
+		{
+			name:  "map to Role test",
+			query: dao.NewQuery(),
+			args: args{
+				model:  &Role{},
+				out:    &outData2,
+				column: "RoleName",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.query.FindToMap(tt.args.model, tt.args.out, tt.args.column, tt.args.options...); (err != nil) != tt.wantErr {
+				t.Errorf("QueryOptions.FindToMap() error = %v, wantErr %v", err, tt.wantErr)
+			} else {
+				fmt.Println(tt.args.out)
 			}
 		})
 	}

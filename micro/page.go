@@ -44,7 +44,7 @@ func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http
 	if wheres != nil {
 		wheres = append(wheres, query)
 	}
-	err = db.GetPageWithFilters(dataModel, filters, out, page, perPage, &totalCount, query)
+	err = query.GetPageWithFilters(dataModel, filters, out, page, perPage, &totalCount, query)
 	return
 }
 
@@ -56,7 +56,7 @@ func PagesQueryRaw(rawSql string, out interface{}, db dao.DAO, request http.Http
 		return
 	}
 
-	err = db.GetPageByRaw(rawSql, out, page, perPage, &totalCount)
+	err = db.NewQuery().GetPageByRaw(rawSql, out, page, perPage, &totalCount)
 	// response.SetPagesData(totalCount, page, perPage, datas)
 	return
 }

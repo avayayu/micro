@@ -25,6 +25,7 @@ type QueryOptions struct {
 	joinTableList []string
 	preloadList   []string
 	Ctx           context.Context
+	session       *gorm.DB
 }
 
 func (options *QueryOptions) WhereQuery(where string, conditions ...interface{}) *QueryOptions {

@@ -18,6 +18,13 @@ import (
 type DAO interface {
 	Connect() DAO
 	AutoMigrate(models ...interface{}) error
+	NewQuery() *QueryOptions
+	GetDB() *gorm.DB
+	GetMongo() *mongo.Client
+	SetLogger(logger *zap.Logger)
+}
+
+type Query interface {
 	Create(model interface{}, createdBy string, value interface{}) error
 	Updates(model interface{}, updatedBy string, value interface{}, filters ...interface{}) error
 	Delete(model interface{}, deletedBy string, filters ...interface{}) error
@@ -25,18 +32,12 @@ type DAO interface {
 	Find(model, out interface{}, options ...*QueryOptions) error
 	Count(model interface{}, querys ...*QueryOptions) (count int64)
 	Raw(sql string, out interface{}) error
-	NewQuery() *QueryOptions
-	NewTransaction() *Transactions
-	AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions
-	ExecTrans(tran *Transactions) error
-
 	GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error
 	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error
 	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
-
-	GetDB() *gorm.DB
-	GetMongo() *mongo.Client
-	SetLogger(logger *zap.Logger)
+	NewTransaction() *Transactions
+	AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions
+	ExecTrans(tran *Transactions) error
 }
 
 //Database 数据库管理
@@ -100,5 +101,7 @@ func (db *DB) NewQuery() *QueryOptions {
 		selectList:    []string{},
 		joinTableList: []string{},
 		order:         []string{},
+
+		session: db.db.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
 	}
 }

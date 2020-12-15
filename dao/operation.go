@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"log"
 	"reflect"
 
 	ztime "github.com/avayayu/micro/time"
@@ -11,7 +12,7 @@ import (
 )
 
 // Create 创建某模型一行
-func (db *DB) Create(model interface{}, createdBy string, value interface{}) error {
+func (query *QueryOptions) Create(model interface{}, createdBy string, value interface{}) error {
 
 	if reflect.TypeOf(value).Kind() != reflect.Ptr {
 		panic("value must be ptr")
@@ -24,19 +25,19 @@ func (db *DB) Create(model interface{}, createdBy string, value interface{}) err
 		val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
 		val.SetString(createdBy)
 	}
-	return db.db.Omit(clause.Associations).Model(model).Create(value).Error
+	return query.session.Omit(clause.Associations).Model(model).Create(value).Error
 
 }
 
 // Save 保存更新
-func (db *DB) Save(value interface{}) error {
-	return db.db.Omit(clause.Associations).Save(value).Error
+func (query *QueryOptions) Save(value interface{}) error {
+	return query.session.Omit(clause.Associations).Save(value).Error
 }
 
 //Count 根据querys中的where进行数量的统计
-func (db *DB) Count(model interface{}, querys ...*QueryOptions) (count int64) {
+func (query *QueryOptions) Count(model interface{}, querys ...*QueryOptions) (count int64) {
 
-	session := db.db.Model(model)
+	session := query.session.Model(model)
 	for _, query := range querys {
 		session = session.Where(query.where, query.conditions...)
 	}
@@ -47,8 +48,8 @@ func (db *DB) Count(model interface{}, querys ...*QueryOptions) (count int64) {
 }
 
 // Updates 更新模型
-func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
-	session := db.db.Omit(clause.Associations).Model(model)
+func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
+	session := query.session.Omit(clause.Associations).Model(model)
 	if len(filters) > 0 {
 
 		if len(filters)%2 != 0 {
@@ -59,14 +60,14 @@ func (db *DB) Updates(model interface{}, UpdatesBy string, value interface{}, fi
 			session = session.Where(filters[i], filters[i+1])
 		}
 	} else {
-		db.logger.Warn("updates data in no condition")
+		log.Fatalln("updates data in no condition")
 	}
 	return session.Update("updated_by", UpdatesBy).Updates(value).Error
 }
 
 // First 符合条件的第一行
-func (db *DB) First(model, out interface{}, options ...*QueryOptions) (Found bool, err error) {
-	op := db.db.Model(model)
+func (query *QueryOptions) First(model, out interface{}, options ...*QueryOptions) (Found bool, err error) {
+	op := query.session.Model(model)
 	for _, option := range options {
 		op = option.ParseQuery(op)
 	}
@@ -82,24 +83,70 @@ func (db *DB) First(model, out interface{}, options ...*QueryOptions) (Found boo
 	return true, nil
 }
 
-func (db *DB) Raw(sql string, out interface{}) error {
+func (query *QueryOptions) Raw(sql string, out interface{}) error {
 	if reflect.TypeOf(out).Kind() != reflect.Ptr {
 		panic("out must be ptr")
 	}
-	return db.db.Raw(sql).Scan(out).Error
+	return query.session.Raw(sql).Scan(out).Error
 }
 
 // Find 根据条件查询到的数据
-func (db *DB) Find(model, out interface{}, options ...*QueryOptions) error {
-	op := db.db.Model(model)
+func (query *QueryOptions) Find(model, out interface{}, options ...*QueryOptions) error {
+	op := query.session.Model(model)
 	for _, option := range options {
 		op = option.ParseQuery(op)
 	}
-	return op.Scan(out).Error
+
+	return op.Find(out).Error
+}
+
+//FindToMap 将查询结果存放到map中，其中Column为作为key的列
+//如果Column不是主键将会自动覆盖
+func (query *QueryOptions) FindToMap(model, out interface{}, column string, options ...*QueryOptions) error {
+	typ := reflect.TypeOf(out)
+	outValue := reflect.ValueOf(out).Elem()
+	if typ.Kind() != reflect.Ptr {
+		log.Fatal("out must be pointer")
+		return errors.New("out must be pointer")
+	}
+
+	if typ.Elem().Kind() != reflect.Map {
+		log.Fatal("out must be a pointer of golang Map")
+		return errors.New("out must be pointer")
+	}
+
+	typ = typ.Elem().Elem()
+	if (typ.Kind() != reflect.Ptr && typ.Kind() != reflect.Struct) || typ.Kind() == reflect.Ptr && typ.Elem().Kind() != reflect.Struct {
+		log.Fatal("element of out map must be a struct")
+		return errors.New("element of out map must be a struct")
+	}
+	// slice := reflect.MakeSlice(reflect.SliceOf(typ), 0, 0)
+
+	slice := reflect.New(reflect.SliceOf(typ))
+	sliceData := slice.Interface()
+
+	if err := query.Find(model, sliceData, options...); err != nil {
+		return err
+	}
+	sliceValue := reflect.ValueOf(sliceData).Elem()
+	for i := 0; i < sliceValue.Len(); i++ {
+		value := sliceValue.Index(i)
+		var key reflect.Value
+		if value.Type().Kind() == reflect.Ptr {
+			valueStruct := value.Elem()
+			key = valueStruct.FieldByName(column)
+		} else {
+			key = value.FieldByName(column)
+		}
+
+		outValue.SetMapIndex(key, value)
+	}
+
+	return nil
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
+func (query *QueryOptions) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
 	var data *gorm.DB
 
 	if where != nil {
@@ -124,9 +171,9 @@ func (db *DB) GetPage(model, where, out interface{}, pageIndex, pageSize int, to
 }
 
 // GetPage 从数据库中分页获取数据
-func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
+func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
 
-	var data *gorm.DB = db.db
+	var data *gorm.DB = query.session
 
 	if filters != nil {
 		for _, item := range filters.FilterItems {
@@ -158,9 +205,9 @@ func (db *DB) GetPageWithFilters(model interface{}, filters *Filter, out interfa
 }
 
 //GetPageByRaw 根据原始的sql进行分页查询
-func (db *DB) GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error {
+func (query *QueryOptions) GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error {
 
-	data := db.db.Raw(sql, where...)
+	data := query.session.Raw(sql, where...)
 
 	err := data.Count(totalCount).Error
 
@@ -175,12 +222,12 @@ func (db *DB) GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int,
 }
 
 //PluckList 查询某表中的某一列 切片
-func (db *DB) PluckList(model, where interface{}, out interface{}, fieldName string) error {
-	return db.db.Model(model).Where(where).Pluck(fieldName, out).Error
+func (query *QueryOptions) PluckList(model, where interface{}, out interface{}, fieldName string) error {
+	return query.session.Model(model).Where(where).Pluck(fieldName, out).Error
 }
 
-func (db *DB) Delete(model interface{}, deletedBy string, filters ...interface{}) error {
-	var op *gorm.DB = db.db.Model(model)
+func (query *QueryOptions) Delete(model interface{}, deletedBy string, filters ...interface{}) error {
+	var op *gorm.DB = query.session.Model(model)
 
 	if len(filters)%2 != 0 {
 		panic("filters length must be even")
@@ -200,19 +247,19 @@ func CheckError(err error) (bool, error) {
 	return false, err
 }
 
-func (db *DB) NewTransaction() *Transactions {
+func (query *QueryOptions) NewTransaction() *Transactions {
 
 	trans := Transactions{
-		session: db.db.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
+		session: query.session.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
 	}
 	return &trans
 }
 
-func (db *DB) AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions {
+func (query *QueryOptions) AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions {
 	tran.subTransactions = append(tran.subTransactions, subT)
 	return tran
 }
 
-func (db *DB) ExecTrans(tran *Transactions) error {
+func (query *QueryOptions) ExecTrans(tran *Transactions) error {
 	return tran.Run()
 }
