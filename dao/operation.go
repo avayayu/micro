@@ -19,9 +19,7 @@ func (query *QueryOptions) Create(model interface{}, createdBy string, value int
 	}
 
 	typ := reflect.TypeOf(value).Elem()
-	if _, ok := typ.FieldByName("CreatedBy"); !ok {
-		return errors.New("model is not a bfr micro models")
-	} else {
+	if _, ok := typ.FieldByName("CreatedBy"); ok {
 		val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
 		val.SetString(createdBy)
 	}
