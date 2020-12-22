@@ -23,6 +23,7 @@ require (
 	github.com/prometheus/client_golang v1.8.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v2.20.9+incompatible
+	github.com/siddontang/go v0.0.0-20180604090527-bdc77568d726
 	github.com/stretchr/testify v1.6.1
 	github.com/thoas/go-funk v0.7.0
 	go.mongodb.org/mongo-driver v1.4.2
