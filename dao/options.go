@@ -147,7 +147,7 @@ func (options *QueryOptions) ParseQuery(session *gorm.DB) *gorm.DB {
 			buf.WriteByte(',')
 		}
 		cols := buf.String()
-		cols = cols[1 : len(cols)-1]
+		cols = cols[0 : len(cols)-1]
 		session = session.Select(cols)
 	}
 	return session

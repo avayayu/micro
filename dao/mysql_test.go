@@ -184,6 +184,7 @@ func TestDB_First(t *testing.T) {
 				t.Errorf("DB.First() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if gotNotFound != tt.wantNotFound {
 				t.Errorf("DB.First() = %v, want %v", gotNotFound, tt.wantNotFound)
 			}
@@ -290,6 +291,7 @@ func TestQueryOptions_FindToMap(t *testing.T) {
 		column  string
 		options []*QueryOptions
 	}
+	outData3 := map[uint64]*Role{}
 	outData1 := map[string]Role{}
 	outData2 := map[string]*Role{}
 	tests := []struct {
@@ -299,6 +301,16 @@ func TestQueryOptions_FindToMap(t *testing.T) {
 		wantErr bool
 	}{
 		// TODO: Add test cases.
+		{
+			name:  "map to Role id test",
+			query: dao.NewQuery(),
+			args: args{
+				model:  &Role{},
+				out:    &outData3,
+				column: "ID",
+			},
+			wantErr: false,
+		},
 		{
 			name:  "map to Role test",
 			query: dao.NewQuery(),
