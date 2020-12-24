@@ -64,6 +64,7 @@ func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value in
 	if query.where == "" && len(filters) == 0 {
 		log.Fatalln("updates data in no condition")
 	}
+
 	return session.Update("updated_by", UpdatesBy).Updates(value).Error
 }
 
