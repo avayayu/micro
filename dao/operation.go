@@ -147,7 +147,7 @@ func (query *QueryOptions) FindToMap(model, out interface{}, column string) erro
 func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
 	var session *gorm.DB = query.ParseQuery(query.session)
 
-	err := session.Count(totalCount).Error
+	err := session.Model(model).Count(totalCount).Error
 
 	if err != nil {
 		return err
@@ -176,7 +176,7 @@ func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter
 
 	session = session.Order("updated_at desc").Order("created_at desc")
 
-	err := session.Count(totalCount).Error
+	err := session.Model(model).Count(totalCount).Error
 
 	if err != nil {
 		return err
