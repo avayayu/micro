@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/avayayu/micro/code"
 	"github.com/avayayu/micro/dao"
 	"github.com/avayayu/micro/net/http"
 )
@@ -26,11 +27,13 @@ func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http
 	perPage, page, rawOrder, err := request.GetPageParameter()
 
 	if err != nil {
+		response.FlushHttpClientError(code.RequestParamInCorrect, "分页参数出错", err)
 		return
 	}
 
 	filters, err := request.GetPageFilters(parameter)
 	if err != nil {
+		response.FlushHttpClientError(code.RequestParamInCorrect, "分页过滤器出错", err)
 		return
 	}
 
@@ -47,6 +50,9 @@ func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http
 		wheres = append(wheres, query)
 	}
 	err = query.GetPageWithFilters(dataModel, filters, out, page, perPage, &totalCount)
+	if err != nil {
+		response.FlushHttpClientError(code.DBQueryError, "数据库查询出错", err)
+	}
 	return
 }
 
