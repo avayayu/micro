@@ -38,7 +38,9 @@ func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http
 	if rawOrder != nil {
 		query = rawOrder.GetPageOrder(parameter)
 	}
-
+	if query == nil {
+		query = db.NewQuery()
+	}
 	query = query.Filter(parameter, filters)
 
 	if wheres != nil {
