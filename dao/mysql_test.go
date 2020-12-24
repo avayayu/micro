@@ -179,7 +179,7 @@ func TestDB_First(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotNotFound, err := tt.db.NewQuery().First(tt.args.model, tt.args.out, tt.args.options...)
+			gotNotFound, err := tt.db.NewQuery().First(tt.args.model, tt.args.out)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DB.First() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -273,7 +273,7 @@ func TestDB_Find(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.db.NewQuery().Find(tt.args.model, tt.args.out, tt.args.options...); (err != nil) != tt.wantErr && (tt.name == "deviceType_Find" && len(deviceType) == 1) && (tt.name == "deviceType_Find_0" && len(deviceType) == 0) {
+			if err := tt.db.NewQuery().Find(tt.args.model, tt.args.out); (err != nil) != tt.wantErr && (tt.name == "deviceType_Find" && len(deviceType) == 1) && (tt.name == "deviceType_Find_0" && len(deviceType) == 0) {
 				t.Errorf("DB.Find() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
 				fmt.Println(tt.args.out)
@@ -322,7 +322,7 @@ func TestQueryOptions_FindToMap(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.query.FindToMap(tt.args.model, tt.args.out, tt.args.column, tt.args.options...); (err != nil) != tt.wantErr {
+			if err := tt.query.FindToMap(tt.args.model, tt.args.out, tt.args.column); (err != nil) != tt.wantErr {
 				t.Errorf("QueryOptions.FindToMap() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
 				fmt.Println(tt.args.out)

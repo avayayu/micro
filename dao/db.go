@@ -28,12 +28,12 @@ type Query interface {
 	Create(model interface{}, createdBy string, value interface{}) error
 	Updates(model interface{}, updatedBy string, value interface{}, filters ...interface{}) error
 	Delete(model interface{}, deletedBy string, filters ...interface{}) error
-	First(model, out interface{}, options ...*QueryOptions) (Found bool, err error)
-	Find(model, out interface{}, options ...*QueryOptions) error
+	First(model, out interface{}) (Found bool, err error)
+	Find(model, out interface{}) error
 	Count(model interface{}, querys ...*QueryOptions) (count int64)
 	Raw(sql string, out interface{}) error
-	GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error
-	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error
+	GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64) error
+	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error
 	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
 	NewTransaction() *Transactions
 	AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions

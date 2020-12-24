@@ -33,13 +33,10 @@ func (query *QueryOptions) Save(value interface{}) error {
 }
 
 //Count 根据querys中的where进行数量的统计
-func (query *QueryOptions) Count(model interface{}, querys ...*QueryOptions) (count int64) {
+func (query *QueryOptions) Count(model interface{}) (count int64) {
 
 	session := query.session.Model(model)
-	for _, query := range querys {
-		session = session.Where(query.where, query.conditions...)
-	}
-
+	session = session.Where(query.where, query.conditions...)
 	session.Count(&count)
 	return
 
@@ -48,6 +45,11 @@ func (query *QueryOptions) Count(model interface{}, querys ...*QueryOptions) (co
 // Updates 更新模型
 func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
 	session := query.session.Omit(clause.Associations).Model(model)
+
+	if query.where != "" {
+		session = session.Where(query.where, query.conditions...)
+	}
+
 	if len(filters) > 0 {
 
 		if len(filters)%2 != 0 {
@@ -64,11 +66,11 @@ func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value in
 }
 
 // First 符合条件的第一行
-func (query *QueryOptions) First(model, out interface{}, options ...*QueryOptions) (Found bool, err error) {
+func (query *QueryOptions) First(model, out interface{}) (Found bool, err error) {
 	op := query.session.Model(model)
-	for _, option := range options {
-		op = option.ParseQuery(op)
-	}
+
+	op = query.ParseQuery(op)
+
 	err = op.First(out).Error
 	if err != nil {
 		notFound := errors.Is(err, gorm.ErrRecordNotFound)
@@ -89,18 +91,13 @@ func (query *QueryOptions) Raw(sql string, out interface{}) error {
 }
 
 // Find 根据条件查询到的数据
-func (query *QueryOptions) Find(model, out interface{}, options ...*QueryOptions) error {
-	op := query.session.Model(model)
-	for _, option := range options {
-		op = option.ParseQuery(op)
-	}
-
-	return op.Find(out).Error
+func (query *QueryOptions) Find(model, out interface{}) error {
+	return query.ParseQuery(query.session.Model(model)).Find(out).Error
 }
 
 //FindToMap 将查询结果存放到map中，其中Column为作为key的列
 //如果Column不是主键将会自动覆盖
-func (query *QueryOptions) FindToMap(model, out interface{}, column string, options ...*QueryOptions) error {
+func (query *QueryOptions) FindToMap(model, out interface{}, column string) error {
 	typ := reflect.TypeOf(out)
 	outValue := reflect.ValueOf(out).Elem()
 	if typ.Kind() != reflect.Ptr {
@@ -123,7 +120,7 @@ func (query *QueryOptions) FindToMap(model, out interface{}, column string, opti
 	slice := reflect.New(reflect.SliceOf(typ))
 	sliceData := slice.Interface()
 
-	if err := query.Find(model, sliceData, options...); err != nil {
+	if err := query.Find(model, sliceData); err != nil {
 		return err
 	}
 	sliceValue := reflect.ValueOf(sliceData).Elem()
@@ -144,20 +141,10 @@ func (query *QueryOptions) FindToMap(model, out interface{}, column string, opti
 }
 
 // GetPage 从数据库中分页获取数据
-func (query *QueryOptions) GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
-	var data *gorm.DB
+func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
+	var session *gorm.DB = query.ParseQuery(query.session)
 
-	if where != nil {
-		data = data.Where(where)
-	}
-	if options != nil && len(options) > 0 {
-		for _, option := range options {
-			data = option.ParseQuery(data)
-		}
-	} else {
-		data = data.Order("updated_at desc").Order("created_at desc")
-	}
-	err := data.Count(totalCount).Error
+	err := session.Count(totalCount).Error
 
 	if err != nil {
 		return err
@@ -165,13 +152,13 @@ func (query *QueryOptions) GetPage(model, where, out interface{}, pageIndex, pag
 	if *totalCount == 0 {
 		return nil
 	}
-	return data.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(out).Error
+	return session.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(out).Error
 }
 
 // GetPage 从数据库中分页获取数据
-func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64, options ...*QueryOptions) error {
+func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
 
-	var data *gorm.DB = query.session
+	var session *gorm.DB = query.session
 
 	if filters != nil {
 		for _, item := range filters.FilterItems {
@@ -179,17 +166,14 @@ func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter
 			if err != nil {
 				return err
 			}
-			data = data.Where(condition, cri)
+			session = session.Where(condition, cri)
 		}
 	}
+	session = query.ParseQuery(session)
 
-	for _, option := range options {
-		data = option.ParseQuery(data)
-	}
+	session = session.Order("updated_at desc").Order("created_at desc")
 
-	data = data.Order("updated_at desc").Order("created_at desc")
-
-	err := data.Count(totalCount).Error
+	err := session.Count(totalCount).Error
 
 	if err != nil {
 		return err
@@ -197,7 +181,7 @@ func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter
 	if *totalCount == 0 {
 		return nil
 	}
-	err = data.Model(model).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(out).Error
+	err = session.Model(model).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(out).Error
 
 	return err
 }
