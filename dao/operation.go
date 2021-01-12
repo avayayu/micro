@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"reflect"
 
@@ -19,11 +20,41 @@ func (query *QueryOptions) Create(model interface{}, createdBy string, value int
 	}
 
 	typ := reflect.TypeOf(value).Elem()
-	if _, ok := typ.FieldByName("CreatedBy"); ok {
-		val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
-		val.SetString(createdBy)
+	switch typ.Kind() {
+	case reflect.Struct:
+		if _, ok := typ.FieldByName("CreatedBy"); ok {
+			val := reflect.ValueOf(value).Elem().FieldByName("CreatedBy")
+			val.SetString(createdBy)
+		}
+		return query.session.Omit(clause.Associations).Model(model).Create(value).Error
+	case reflect.Slice, reflect.Array:
+		sliceValue := reflect.ValueOf(value).Elem()
+		for i := 0; i < sliceValue.Len(); i++ {
+			v := sliceValue.Index(i)
+			typV := v.Type()
+			if typV.Kind() == reflect.Ptr {
+				typV = typV.Elem()
+				v = v.Elem()
+			}
+
+			if typV.Kind() != reflect.Struct {
+				panic("element must be struct ")
+			}
+
+			if _, ok := typV.FieldByName("CreatedBy"); ok {
+				val := v.FieldByName("CreatedBy")
+				val.SetString(createdBy)
+			}
+
+			if err := query.session.Omit(clause.Associations).Model(model).Create(v.Addr().Interface()).Error; err != nil {
+				return err
+			}
+		}
+	default:
+		return fmt.Errorf("slice or struct needed,but type of value is %s", reflect.TypeOf(value).Kind())
 	}
-	return query.session.Omit(clause.Associations).Model(model).Create(value).Error
+
+	return nil
 
 }
 
@@ -174,7 +205,7 @@ func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter
 	}
 	session = query.ParseQuery(session)
 
-	session = session.Order("updated_at desc").Order("created_at desc")
+	// session = session.Order("updated_at desc").Order("created_at desc")
 
 	err := session.Model(model).Count(totalCount).Error
 

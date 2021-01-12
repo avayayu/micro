@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/avayayu/micro/dao/drivers/mysql"
+	"github.com/avayayu/micro/lib"
 	"github.com/avayayu/micro/models"
 )
 
@@ -27,10 +28,10 @@ func TestMain(m *testing.M) {
 
 	configs := mysql.MysqlConfigs{
 		URL:                 "192.168.100.128",
-		Port:                "3307",
+		Port:                "33309",
 		UserName:            "root",
 		Password:            "bfr123123",
-		DBName:              "cloudbrain",
+		DBName:              "cloudbrain_test",
 		MysqlOpenPrometheus: false,
 	}
 
@@ -55,6 +56,21 @@ func TestDB_Create(t *testing.T) {
 	factory := &DeviceFactory{
 		FactoryName: "布法罗",
 		Comments:    "强",
+	}
+
+	sliceTest := []DeviceFactory{
+		{
+			FactoryName: lib.RandStringBytesMaskImprSrcUnsafe(6),
+			Comments:    "强",
+		},
+		{
+			FactoryName: lib.RandStringBytesMaskImprSrcUnsafe(6),
+			Comments:    "强",
+		},
+		{
+			FactoryName: lib.RandStringBytesMaskImprSrcUnsafe(6),
+			Comments:    "强",
+		},
 	}
 
 	type args struct {
@@ -90,6 +106,16 @@ func TestDB_Create(t *testing.T) {
 					DeviceTypeCode: "Aider",
 					FactoryID:      factory.ID,
 				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "slice Test",
+			db:   dao,
+			args: args{
+				model:     &DeviceFactory{},
+				createdBy: "Test",
+				value:     &sliceTest,
 			},
 			wantErr: false,
 		},

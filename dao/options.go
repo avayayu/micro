@@ -202,7 +202,7 @@ func (order *Order) String() string {
 }
 
 //GetPageOrder 构造GetPageOrder
-func (order *Order) GetPageOrder(models interface{}) *QueryOptions {
+func (order *Order) GetPageOrder(models interface{}, pageOrder *QueryOptions) *QueryOptions {
 	if reflect.TypeOf(models).Kind() != reflect.Ptr {
 		panic("models must be a ptr")
 	}
@@ -237,7 +237,6 @@ func (order *Order) GetPageOrder(models interface{}) *QueryOptions {
 		JSONColumn[tableName] = mapData
 	}
 	mapData = JSONColumn[tableName]
-	var pageOrder *QueryOptions
 	if order.Orders == nil {
 		return nil
 	}

@@ -18,12 +18,14 @@ type FilterModels interface {
 type FilterType uint
 
 var filterMux sync.Mutex
-var filtersColumn map[string]map[string]FilterType
+var filtersColumn map[string]map[string][]FilterType
 
 const (
 	_        FilterType = iota
 	Category            //类别
 	Vague               //模糊查询
+	Max
+	Min
 )
 
 //FilterItem 过滤项
@@ -48,7 +50,8 @@ func (item *FilterItem) WhereValue(models interface{}) (condition string, criter
 	mapData := JSONColumn[tableName]
 
 	var buf bytes.Buffer
-	if item.FilterType == Category {
+	switch item.FilterType {
+	case Category:
 		buf.WriteString(mapData[item.Column])
 		buf.WriteString(" ")
 		switch reflect.TypeOf(item.Value).Kind() {
@@ -66,18 +69,23 @@ func (item *FilterItem) WhereValue(models interface{}) (condition string, criter
 			err = errors.New("can not be fliters")
 			return
 		}
-
-		criterion = item.Value
-
-	} else {
+	case Vague:
 		buf.WriteString(mapData[item.Column])
 		buf.WriteString(" ")
 		buf.WriteString("like")
 		buf.WriteString(" ")
 		buf.WriteString("(?)")
-
 		criterion = fmt.Sprintf("%s%v%s", "%", item.Value, "%")
-
+	case Max:
+		buf.WriteString(mapData[item.Column])
+		buf.WriteString(" ")
+		buf.WriteString("<=")
+		buf.WriteString("?")
+	case Min:
+		buf.WriteString(mapData[item.Column])
+		buf.WriteString(" ")
+		buf.WriteString("=>")
+		buf.WriteString("?")
 	}
 	condition = buf.String()
 	return
@@ -119,7 +127,7 @@ func modelJSONGormMap(models interface{}, tableName string) {
 	}
 }
 
-func RetreiveFilters(models interface{}) map[string]FilterType {
+func RetreiveFilters(models interface{}) map[string][]FilterType {
 	if reflect.TypeOf(models).Kind() != reflect.Ptr {
 		panic("models must be a ptr")
 	}
@@ -132,13 +140,13 @@ func RetreiveFilters(models interface{}) map[string]FilterType {
 	filterMux.Lock()
 	defer filterMux.Unlock()
 	if filtersColumn == nil {
-		filtersColumn = make(map[string]map[string]FilterType)
+		filtersColumn = make(map[string]map[string][]FilterType)
 	}
 
 	if tableFilters, ok := filtersColumn[tableName]; ok {
 		return tableFilters
 	} else {
-		filtersColumn[tableName] = make(map[string]FilterType)
+		filtersColumn[tableName] = make(map[string][]FilterType)
 	}
 
 	rType := reflect.TypeOf(models).Elem()
@@ -154,12 +162,23 @@ func RetreiveFilters(models interface{}) map[string]FilterType {
 			for _, field := range gormArr {
 				if strings.Contains(field, "type") {
 					fieldArray := strings.Split(field, ":")
-
-					if fieldArray[1] == "category" {
-						filtersColumn[tableName][jsonKey] = Category
-					} else if fieldArray[1] == "vague" {
-						filtersColumn[tableName][jsonKey] = Vague
+					if len(fieldArray) < 2 {
+						continue
 					}
+					filtersArray := strings.Split(fieldArray[1], ",")
+					filtersColumn[tableName][jsonKey] = []FilterType{}
+					for _, filter := range filtersArray {
+						if filter == "category" {
+							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Category)
+						} else if filter == "vague" {
+							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Vague)
+						} else if filter == "max" {
+							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Max)
+						} else if filter == "min" {
+							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Min)
+						}
+					}
+
 				}
 			}
 		}
@@ -171,8 +190,10 @@ func RetreiveFilters(models interface{}) map[string]FilterType {
 func JudgeFilters(models interface{}, column string, filterType FilterType) (flag bool) {
 	filtersJSONMap := RetreiveFilters(models)
 	if _, ok := filtersJSONMap[column]; ok {
-		if filterType == filtersJSONMap[column] {
-			return true
+		for _, filter := range filtersJSONMap[column] {
+			if filter == filterType {
+				flag = true
+			}
 		}
 	}
 	return
