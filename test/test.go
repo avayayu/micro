@@ -108,3 +108,16 @@ func Result(body []byte) ResultType {
 		return UnKnown
 	}
 }
+
+//TestDataList 测试返回结果中的总量是否正确
+func TestDataList(result map[string]interface{}, totalNum int) bool {
+	dataMap := result["data"].(map[string]interface{})
+	if totalNum, ok := dataMap["totalNum"]; !ok {
+		return false
+	} else {
+		if totalNum != totalNum {
+			return false
+		}
+	}
+	return true
+}
