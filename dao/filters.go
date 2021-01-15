@@ -48,7 +48,7 @@ func (item *FilterItem) WhereValue(models interface{}) (condition string, criter
 	}
 	modelJSONGormMap(models, tableName)
 	mapData := JSONColumn[tableName]
-
+	criterion = item.Value
 	var buf bytes.Buffer
 	switch item.FilterType {
 	case Category:
