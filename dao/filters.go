@@ -109,14 +109,14 @@ func modelJSONGormMap(models interface{}, tableName string) {
 		for i := 0; i < rType.NumField(); i++ {
 			t := rType.Field(i)
 			jsonKey := t.Tag.Get("json")
-			if jsonKey == "-" {
+			if jsonKey == "-" || jsonKey == "" {
 				continue
 			}
 			column := t.Tag.Get("gorm")
 			if column != "" {
 				gormArr := strings.Split(column, ";")
 				for _, field := range gormArr {
-					if strings.Contains(field, "Column") {
+					if strings.Contains(strings.ToLower(field), "column") {
 						fieldArray := strings.Split(field, ":")
 						mapData[jsonKey] = fieldArray[1]
 					}
