@@ -106,7 +106,7 @@ func modelJSONGormMap(parameter interface{}) {
 	}
 	var mapData map[string]string = map[string]string{}
 	if _, ok := JSONColumn[parameterName]; !ok {
-		rType := reflect.TypeOf(parameterName).Elem()
+		rType := reflect.TypeOf(parameter).Elem()
 		for i := 0; i < rType.NumField(); i++ {
 			t := rType.Field(i)
 			jsonKey := t.Tag.Get("json")
