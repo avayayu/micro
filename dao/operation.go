@@ -190,13 +190,13 @@ func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize i
 }
 
 // GetPage 从数据库中分页获取数据
-func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
+func (query *QueryOptions) GetPageWithFilters(parameter interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
 
 	var session *gorm.DB = query.session
 
 	if filters != nil {
 		for _, item := range filters.FilterItems {
-			condition, cri, err := item.WhereValue(model)
+			condition, cri, err := item.WhereValue(parameter)
 			if err != nil {
 				return err
 			}
@@ -204,6 +204,10 @@ func (query *QueryOptions) GetPageWithFilters(model interface{}, filters *Filter
 		}
 	}
 	session = query.ParseQuery(session)
+	model := parameter
+	if rmodel, ok := parameter.(FilterModels); ok {
+		model = rmodel.OrmModels()
+	}
 
 	// session = session.Order("updated_at desc").Order("created_at desc")
 

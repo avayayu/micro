@@ -35,19 +35,15 @@ type FilterItem struct {
 	Value      interface{} `json:"value"`
 }
 
-func (item *FilterItem) WhereValue(models interface{}) (condition string, criterion interface{}, err error) {
-	if reflect.TypeOf(models).Kind() != reflect.Ptr {
+func (item *FilterItem) WhereValue(parameter interface{}) (condition string, criterion interface{}, err error) {
+	if reflect.TypeOf(parameter).Kind() != reflect.Ptr {
 		panic("models must be a ptr")
 	}
 
-	var tableName string
-	if _, ok := reflect.TypeOf(models).Elem().MethodByName("TableName"); !ok {
-		panic("models do not have methods TableName()")
-	} else {
-		tableName = reflect.ValueOf(models).MethodByName("TableName").Call(nil)[0].String()
-	}
-	modelJSONGormMap(models, tableName)
-	mapData := JSONColumn[tableName]
+	parameterName := reflect.TypeOf(parameter).Elem().Name()
+
+	modelJSONGormMap(parameter)
+	mapData := JSONColumn[parameterName]
 	criterion = item.Value
 	var buf bytes.Buffer
 	switch item.FilterType {
@@ -96,7 +92,12 @@ type Filter struct {
 	FilterItems []*FilterItem `json:"filters"`
 }
 
-func modelJSONGormMap(models interface{}, tableName string) {
+func modelJSONGormMap(parameter interface{}) {
+
+	if reflect.TypeOf(parameter).Kind() != reflect.Ptr {
+		panic("models must be a ptr")
+	}
+	parameterName := reflect.TypeOf(parameter).Elem().Name()
 
 	filterMux.Lock()
 	defer filterMux.Unlock()
@@ -104,8 +105,8 @@ func modelJSONGormMap(models interface{}, tableName string) {
 		JSONColumn = make(map[string]map[string]string)
 	}
 	var mapData map[string]string = map[string]string{}
-	if _, ok := JSONColumn[tableName]; !ok {
-		rType := reflect.TypeOf(models).Elem()
+	if _, ok := JSONColumn[parameterName]; !ok {
+		rType := reflect.TypeOf(parameterName).Elem()
 		for i := 0; i < rType.NumField(); i++ {
 			t := rType.Field(i)
 			jsonKey := t.Tag.Get("json")
@@ -113,6 +114,9 @@ func modelJSONGormMap(models interface{}, tableName string) {
 				continue
 			}
 			column := t.Tag.Get("gorm")
+			if column == "" {
+				column = t.Tag.Get("db")
+			}
 			if column != "" {
 				gormArr := strings.Split(column, ";")
 				for _, field := range gormArr {
@@ -123,33 +127,45 @@ func modelJSONGormMap(models interface{}, tableName string) {
 				}
 			}
 		}
-		JSONColumn[tableName] = mapData
+		JSONColumn[parameterName] = mapData
 	}
 }
 
-func RetreiveFilters(models interface{}) map[string][]FilterType {
-	if reflect.TypeOf(models).Kind() != reflect.Ptr {
+func RetreiveFilters(parameter interface{}) map[string][]FilterType {
+	if reflect.TypeOf(parameter).Kind() != reflect.Ptr {
 		panic("models must be a ptr")
 	}
-	var tableName string
-	if _, ok := reflect.TypeOf(models).Elem().MethodByName("TableName"); !ok {
-		panic("models do not have methods TableName()")
-	} else {
-		tableName = reflect.ValueOf(models).MethodByName("TableName").Call(nil)[0].String()
-	}
+	// var models interface{}
+
+	parameterName := reflect.TypeOf(parameter).Elem().Name()
+
+	// if _, ok := reflect.TypeOf(models).Elem().MethodByName("TableName"); !ok {
+	// 	if realModels, ok := parameter.(FilterModels); !ok {
+	// 		panic("parameter not have method TableName nor not a FilterModels")
+	// 	} else {
+	// 		models = realModels.OrmModels()
+	// 		if _, ok := reflect.TypeOf(models).Elem().MethodByName("TableName"); !ok {
+	// 			panic("parameter not have method TableName nor not a FilterModels")
+	// 		} else {
+	// 			tableName = reflect.ValueOf(models).MethodByName("TableName").Call(nil)[0].String()
+	// 		}
+	// 	}
+	// } else {
+	// 	tableName = reflect.ValueOf(models).MethodByName("TableName").Call(nil)[0].String()
+	// }
 	filterMux.Lock()
 	defer filterMux.Unlock()
 	if filtersColumn == nil {
 		filtersColumn = make(map[string]map[string][]FilterType)
 	}
 
-	if tableFilters, ok := filtersColumn[tableName]; ok {
+	if tableFilters, ok := filtersColumn[parameterName]; ok {
 		return tableFilters
 	} else {
-		filtersColumn[tableName] = make(map[string][]FilterType)
+		filtersColumn[parameterName] = make(map[string][]FilterType)
 	}
 
-	rType := reflect.TypeOf(models).Elem()
+	rType := reflect.TypeOf(parameter).Elem()
 	for i := 0; i < rType.NumField(); i++ {
 		t := rType.Field(i)
 		jsonKey := t.Tag.Get("json")
@@ -166,16 +182,16 @@ func RetreiveFilters(models interface{}) map[string][]FilterType {
 						continue
 					}
 					filtersArray := strings.Split(fieldArray[1], ",")
-					filtersColumn[tableName][jsonKey] = []FilterType{}
+					filtersColumn[parameterName][jsonKey] = []FilterType{}
 					for _, filter := range filtersArray {
 						if filter == "category" {
-							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Category)
+							filtersColumn[parameterName][jsonKey] = append(filtersColumn[parameterName][jsonKey], Category)
 						} else if filter == "vague" {
-							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Vague)
+							filtersColumn[parameterName][jsonKey] = append(filtersColumn[parameterName][jsonKey], Vague)
 						} else if filter == "max" {
-							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Max)
+							filtersColumn[parameterName][jsonKey] = append(filtersColumn[parameterName][jsonKey], Max)
 						} else if filter == "min" {
-							filtersColumn[tableName][jsonKey] = append(filtersColumn[tableName][jsonKey], Min)
+							filtersColumn[parameterName][jsonKey] = append(filtersColumn[parameterName][jsonKey], Min)
 						}
 					}
 
@@ -183,12 +199,12 @@ func RetreiveFilters(models interface{}) map[string][]FilterType {
 			}
 		}
 	}
-	return filtersColumn[tableName]
+	return filtersColumn[parameterName]
 }
 
 //JudgeFilters 根据模型定义中的filters tag来判断该属性能不能参与筛选
-func JudgeFilters(models interface{}, column string, filterType FilterType) (flag bool) {
-	filtersJSONMap := RetreiveFilters(models)
+func JudgeFilters(parameter interface{}, column string, filterType FilterType) (flag bool) {
+	filtersJSONMap := RetreiveFilters(parameter)
 	if _, ok := filtersJSONMap[column]; ok {
 		for _, filter := range filtersJSONMap[column] {
 			if filter == filterType {
