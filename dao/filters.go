@@ -59,7 +59,7 @@ func (item *FilterItem) WhereValue(parameter interface{}) (condition string, cri
 				buf.WriteString("in (?)")
 			}
 
-		case reflect.Float32, reflect.Float64, reflect.Bool, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		case reflect.Float32, reflect.Float64, reflect.Bool, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.String:
 			buf.WriteString("=?")
 		default:
 			err = errors.New("can not be fliters")
