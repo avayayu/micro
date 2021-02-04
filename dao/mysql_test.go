@@ -315,14 +315,14 @@ func TestQueryOptions_FindToMap(t *testing.T) {
 		model   interface{}
 		out     interface{}
 		column  string
-		options []*QueryOptions
+		options []Query
 	}
 	outData3 := map[uint64]*Role{}
 	outData1 := map[string]Role{}
 	outData2 := map[string]*Role{}
 	tests := []struct {
 		name    string
-		query   *QueryOptions
+		query   Query
 		args    args
 		wantErr bool
 	}{

@@ -11,7 +11,7 @@ import (
 
 //PagesQuery 根据请求与模型 进行资源的分页查询/排序/过滤
 //parameter 如果不实现FilterModels接口则将直接使用该模型进行ORM访问
-func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response, query *dao.QueryOptions) (totalCount int64, page int, perPage int, err error) {
+func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response, query dao.Query) (totalCount int64, page int, perPage int, err error) {
 
 	if reflect.TypeOf(parameter).Kind() != reflect.Ptr {
 		err = errors.New("models must be ptr")
@@ -55,14 +55,14 @@ func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http
 }
 
 //PagesQueryRaw test2222
-func PagesQueryRaw(rawSql string, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response) (totalCount int64, page int, perPage int, err error) {
-	perPage, page, _, err = request.GetPageParameter()
+// func PagesQueryRaw(rawSql string, out interface{}, db dao.DAO, request http.HttpRequest, response http.Response) (totalCount int64, page int, perPage int, err error) {
+// 	perPage, page, _, err = request.GetPageParameter()
 
-	if err != nil {
-		return
-	}
+// 	if err != nil {
+// 		return
+// 	}
 
-	err = db.NewQuery().GetPageByRaw(rawSql, out, page, perPage, &totalCount)
-	// response.SetPagesData(totalCount, page, perPage, datas)
-	return
-}
+// 	err = db.NewQuery().GetPageByRaw(rawSql, out, page, perPage, &totalCount)
+// 	// response.SetPagesData(totalCount, page, perPage, datas)
+// 	return
+// }

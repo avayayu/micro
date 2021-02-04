@@ -18,10 +18,18 @@ import (
 type DAO interface {
 	Connect() DAO
 	AutoMigrate(models ...interface{}) error
-	NewQuery() *QueryOptions
+	NewQuery() Query
 	GetDB() *gorm.DB
 	GetMongo() *mongo.Client
 	SetLogger(logger *zap.Logger)
+}
+
+//Transactions 事务封装接口
+type Transactions interface {
+	//提交
+	Commit() error
+	//执行
+	Execute(sub func(query Query) error)
 }
 
 type Query interface {
@@ -30,14 +38,13 @@ type Query interface {
 	Delete(model interface{}, deletedBy string, filters ...interface{}) error
 	First(model, out interface{}) (Found bool, err error)
 	Find(model, out interface{}) error
-	Count(model interface{}, querys ...*QueryOptions) (count int64)
+	Count(model interface{}) (count int64)
 	Raw(sql string, out interface{}) error
-	GetPage(model, where, out interface{}, pageIndex, pageSize int, totalCount *int64) error
+	FindToMap(model, out interface{}, column string) error
+	GetPage(model, out interface{}, pageIndex, pageSize int, totalCount *int64) error
 	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error
-	GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error
-	NewTransaction() *Transactions
-	AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions
-	ExecTrans(tran *Transactions) error
+	ParseOrder(parameter interface{}, order *Order) Query
+	Filter(parameter interface{}, filter *Filter) Query
 }
 
 //Database 数据库管理
@@ -95,7 +102,7 @@ func (db *DB) AutoMigrate(models ...interface{}) error {
 	return db.db.AutoMigrate(models...)
 }
 
-func (db *DB) NewQuery() *QueryOptions {
+func (db *DB) NewQuery() Query {
 	return &QueryOptions{
 		conditions:    []interface{}{},
 		selectList:    []string{},
@@ -103,5 +110,22 @@ func (db *DB) NewQuery() *QueryOptions {
 		order:         []string{},
 
 		session: db.db.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
+	}
+}
+
+func (db *DB) NewTrainsactions() Transactions {
+
+	query := &QueryOptions{
+		conditions:    []interface{}{},
+		selectList:    []string{},
+		joinTableList: []string{},
+		order:         []string{},
+
+		session: db.db.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
+	}
+
+	return &transactions{
+		query:           query,
+		subTransactions: []SubTransactions{},
 	}
 }
