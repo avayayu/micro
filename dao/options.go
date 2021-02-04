@@ -28,6 +28,11 @@ type QueryOptions struct {
 	session       *gorm.DB
 }
 
+func (options *QueryOptions) Model(model interface{}) Query {
+	options.session = options.session.Model(model)
+	return options
+}
+
 func (options *QueryOptions) WhereQuery(where string, conditions ...interface{}) Query {
 	options.where = where
 	options.conditions = conditions

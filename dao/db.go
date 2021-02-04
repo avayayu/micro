@@ -34,6 +34,7 @@ type Transactions interface {
 }
 
 type Query interface {
+	Model(model interface{}) Query
 	Create(model interface{}, createdBy string, value interface{}) error
 	Updates(model interface{}, updatedBy string, value interface{}, filters ...interface{}) error
 	Delete(model interface{}, deletedBy string, filters ...interface{}) error
