@@ -22,6 +22,7 @@ type DAO interface {
 	GetDB() *gorm.DB
 	GetMongo() *mongo.Client
 	SetLogger(logger *zap.Logger)
+	NewTrainsactions() Transactions
 }
 
 //Transactions 事务封装接口
