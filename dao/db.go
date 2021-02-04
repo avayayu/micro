@@ -45,6 +45,11 @@ type Query interface {
 	GetPageWithFilters(model interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error
 	ParseOrder(parameter interface{}, order *Order) Query
 	Filter(parameter interface{}, filter *Filter) Query
+	WhereQuery(where string, conditions ...interface{}) Query
+	Select(attrs ...string) Query
+	Joins(Table ...string) Query
+	Order(order ...string) Query
+	PreLoad(Attrs ...string) Query
 }
 
 //Database 数据库管理
