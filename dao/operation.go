@@ -242,8 +242,8 @@ func (query *QueryOptions) GetPageByRaw(sql string, out interface{}, pageIndex, 
 }
 
 //PluckList 查询某表中的某一列 切片
-func (query *QueryOptions) PluckList(model, where interface{}, out interface{}, fieldName string) error {
-	return query.session.Model(model).Where(where).Pluck(fieldName, out).Error
+func (query *QueryOptions) PluckList(model, out interface{}, fieldName string) error {
+	return query.parseQuery(query.session.Model(model)).Pluck(fieldName, out).Error
 }
 
 func (query *QueryOptions) Delete(model interface{}, deletedBy string, filters ...interface{}) error {
