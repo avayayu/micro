@@ -103,7 +103,7 @@ func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value in
 func (query *QueryOptions) First(model, out interface{}) (Found bool, err error) {
 	op := query.session.Model(model)
 
-	op = query.ParseQuery(op)
+	op = query.parseQuery(op)
 
 	err = op.First(out).Error
 	if err != nil {
@@ -126,7 +126,7 @@ func (query *QueryOptions) Raw(sql string, out interface{}) error {
 
 // Find 根据条件查询到的数据
 func (query *QueryOptions) Find(model, out interface{}) error {
-	return query.ParseQuery(query.session.Model(model)).Find(out).Error
+	return query.parseQuery(query.session.Model(model)).Find(out).Error
 }
 
 //FindToMap 将查询结果存放到map中，其中Column为作为key的列
@@ -176,7 +176,7 @@ func (query *QueryOptions) FindToMap(model, out interface{}, column string) erro
 
 // GetPage 从数据库中分页获取数据
 func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
-	var session *gorm.DB = query.ParseQuery(query.session)
+	var session *gorm.DB = query.parseQuery(query.session)
 
 	err := session.Model(model).Count(totalCount).Error
 
@@ -203,7 +203,7 @@ func (query *QueryOptions) GetPageWithFilters(parameter interface{}, filters *Fi
 			session = session.Where(condition, cri)
 		}
 	}
-	session = query.ParseQuery(session)
+	session = query.parseQuery(session)
 	model := parameter
 	if rmodel, ok := parameter.(FilterModels); ok {
 		model = rmodel.OrmModels()
@@ -265,21 +265,4 @@ func CheckError(err error) (bool, error) {
 		return true, nil
 	}
 	return false, err
-}
-
-func (query *QueryOptions) NewTransaction() *Transactions {
-
-	trans := Transactions{
-		session: query.session.Session(&gorm.Session{SkipDefaultTransaction: true, FullSaveAssociations: false}),
-	}
-	return &trans
-}
-
-func (query *QueryOptions) AddSubTransaction(tran *Transactions, subT SubTransactions) *Transactions {
-	tran.subTransactions = append(tran.subTransactions, subT)
-	return tran
-}
-
-func (query *QueryOptions) ExecTrans(tran *Transactions) error {
-	return tran.Run()
 }
