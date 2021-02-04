@@ -62,7 +62,7 @@ func (options *QueryOptions) Filter(parameter interface{}, filter *Filter) Query
 			if err != nil {
 				continue
 			}
-			options.session.Where(condition, cri)
+			options.session = options.session.Where(condition, cri)
 		}
 	}
 	return options
