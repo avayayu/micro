@@ -52,7 +52,7 @@ type Query interface {
 	Joins(Table ...string) Query
 	Order(order ...string) Query
 	PreLoad(Attrs ...string) Query
-	PluckList(model, where interface{}, out interface{}, fieldName string) error
+	PluckList(model interface{}, out interface{}, fieldName string) error
 }
 
 //Database 数据库管理
