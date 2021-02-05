@@ -130,7 +130,7 @@ func (query *QueryOptions) Find(model, out interface{}) error {
 }
 
 //Update 更新单列数据
-func (query *QueryOptions) Update(model, column string, value interface{}) error {
+func (query *QueryOptions) Update(model interface{}, column string, value interface{}) error {
 	return query.parseQuery(query.session.Model(model)).Update(column, value).Error
 }
 
