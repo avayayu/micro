@@ -129,6 +129,11 @@ func (query *QueryOptions) Find(model, out interface{}) error {
 	return query.parseQuery(query.session.Model(model)).Find(out).Error
 }
 
+//Update 更新单列数据
+func (query *QueryOptions) Update(model, column string, value interface{}) error {
+	return query.parseQuery(query.session.Model(model)).Update(column, value).Error
+}
+
 //FindToMap 将查询结果存放到map中，其中Column为作为key的列
 //如果Column不是主键将会自动覆盖
 func (query *QueryOptions) FindToMap(model, out interface{}, column string) error {
