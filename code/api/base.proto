@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/avayayu/micro/code/api";
+ 
+import "google/protobuf/any.proto";
+
+// option go_package = "bfrcloud.com/pkg/code/types;types";
+// option java_multiple_files = true;
+// option java_outer_classname = "StatusProto";
+// option java_package = "com.bilibili.rpc";
+// option objc_class_prefix = "RPC";
+
+message Status {
+  // The error code see ecode.Code
+  int32 code = 1;
+
+  //requestID from gateway 
+  string requestID = 2;
+
+  // A developer-facing error message, which should be in English. Any
+  string message = 3;
+
+  // A list of messages that carry the error details.  There is a common set of
+  // message types for APIs to use.
+  repeated google.protobuf.Any details = 4;
+}
+
+
+message IDMessage {
+  string requestID = 2;
+  uint64 id = 1;
+}
