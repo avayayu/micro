@@ -1,25 +1,34 @@
 {
-  "terminal.integrated.shell.linux": "/usr/bin/zsh",
-  "go.goroot": "/usr/local/go",
-  "go.formatTool": "goformat",
-  "go.testEnvVars": {
-      "cloudbrainMode":"dev"
-  },
-  "go.autocompleteUnimportedPackages": true,
-  "[go]": {
-      "editor.formatOnSave": true,
-      "editor.codeActionsOnSave": {
-          "source.organizeImports": true
-      }
-  },
-  "gopls": {
-      "usePlaceholders": true,
-      "completeUnimported": true
-  },
-  "files.watcherExclude": {
-      "${workspaceRoot}/cmd/gateway/_debug_bin": true
-  },
-  "files.exclude": {
-      "**/__pycache__": true
-  }
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\wsl.exe",
+    "terminal.integrated.cwd": "${fileDirname}",
+    "terminal.integrated.shellArgs.linux": [
+        "-l"
+    ],
+    "terminal.integrated.splitCwd": "workspaceRoot",
+    "terminal.integrated.fontFamily": "'Noto Mono for Powerline'",
+    "terminal.integrated.fontSize": 14,
+    "go.goroot": "/home/go",
+    "go.formatTool": "goformat",
+    "go.testEnvVars": {
+        "cloudbrainMode": "dev"
+    },
+    "go.autocompleteUnimportedPackages": true,
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "gopls": {
+        "usePlaceholders": true,
+        "completeUnimported": true
+    },
+    "files.watcherExclude": {
+        "${workspaceRoot}/cmd/gateway/_debug_bin": true
+    },
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "editor.fontFamily": "Consolas, 'Courier New', monospace",
+    "editor.fontLigatures": true,
 }

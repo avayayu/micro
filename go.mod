@@ -28,7 +28,9 @@ require (
 	github.com/thoas/go-funk v0.7.0
 	go.mongodb.org/mongo-driver v1.4.2
 	go.uber.org/zap v1.16.0
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.32.0
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0

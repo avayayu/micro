@@ -272,3 +272,5 @@ func (s *RpcServer) Shutdown(ctx context.Context) (err error) {
 	}
 	return
 }
+
+func (s *RpcServer) RegisterHandler()
