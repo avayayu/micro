@@ -237,6 +237,12 @@ func DefaultServer(conf *ServerConfig) *Engine {
 	return engine
 }
 
+func (engine *Engine) WrapH(h http.Handler) HandlerFunc {
+	return func(c *Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
 func (engine *Engine) addRoute(method, path string, handlers ...HandlerFunc) {
 	if path[0] != '/' {
 		panic("httpserver: path must begin with '/'")

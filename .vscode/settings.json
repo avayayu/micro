@@ -31,4 +31,8 @@
     },
     "editor.fontFamily": "Consolas, 'Courier New', monospace",
     "editor.fontLigatures": true,
+    "protoc": {
+        "path": "/home/programs/protoc/bin/protoc",
+        "compile_on_save": false,
+    }
 }
