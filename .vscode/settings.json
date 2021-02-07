@@ -7,7 +7,7 @@
     "terminal.integrated.splitCwd": "workspaceRoot",
     "terminal.integrated.fontFamily": "'Noto Mono for Powerline'",
     "terminal.integrated.fontSize": 14,
-    "go.goroot": "/home/go",
+    "go.goroot": "/home/programs/go",
     "go.formatTool": "goformat",
     "go.testEnvVars": {
         "cloudbrainMode": "dev"
