@@ -7,9 +7,12 @@ import (
 
 	"github.com/avayayu/micro/code/api"
 	"github.com/golang/protobuf/ptypes/any"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 func WrapError(err error) error {
@@ -59,4 +62,14 @@ func WrapBFRError(requestID string, code int32, err error) *api.Status {
 		},
 	}
 
+}
+
+func WrapDetails(details []*any.Any) []zapcore.Field {
+	fields := []zapcore.Field{}
+	for index, detail := range details {
+		data, _ := proto.Marshal(detail)
+		field := zap.String(fmt.Sprintf("%d", index), string(data))
+		fields = append(fields, field)
+	}
+	return fields
 }
