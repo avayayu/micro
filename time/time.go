@@ -153,7 +153,7 @@ func StrToJSONTime(source string, layout string) (Time, error) {
 		times, err = time.ParseInLocation(layout, source, time.Local)
 	}
 	if err != nil {
-		panic(err)
+		return Time{times}, fmt.Errorf("can not parse time %s", source)
 	}
 	jsontime := ToTime(times)
 
