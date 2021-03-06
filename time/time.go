@@ -89,7 +89,7 @@ func (m *Time) UnmarshalJSON(data []byte) error {
 		}
 		t, err := strconv.ParseInt(date, 0, 64)
 		if err != nil && date != "" {
-			panic(err)
+			return fmt.Errorf("can not parse date %s", string(data))
 		}
 		temp := t / 1000
 
@@ -153,7 +153,7 @@ func StrToJSONTime(source string, layout string) (Time, error) {
 		times, err = time.ParseInLocation(layout, source, time.Local)
 	}
 	if err != nil {
-		panic(err)
+		return Time{times}, fmt.Errorf("can not parse time %s", source)
 	}
 	jsontime := ToTime(times)
 
