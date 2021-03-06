@@ -47,7 +47,6 @@ type Model struct {
 	CreatedBy string         `gorm:"column:created_by;type:varchar(50);default:0;not null;" json:"-" form:"created_by"`       // 创建人
 	UpdatedBy string         `gorm:"column:updated_by;type:varchar(50);default:0;not null;" json:"-" form:"updated_by"`       // 更新人
 	DeletedBy string         `gorm:"column:deleted_by;type:varchar(50);default:0;not null;" json:"-" form:"deleted_by"`       // 删除人
-	OldID     string         `gorm:"column:old_id;type:varchar(24);index" json:"-"`                                           //用于数据迁移
 }
 
 //BeforeCreate 基本类的创建钩子
