@@ -110,7 +110,7 @@ func (r *Response) Set(key string, value interface{}) *Response {
 
 //Reason 构造回复 失败
 func (r *Response) Reason(reason error) *Response {
-	(*r)["reason"] = reason.Error()
+	(*r)["info"] = reason.Error()
 	return r
 }
 
