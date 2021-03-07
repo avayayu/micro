@@ -382,7 +382,7 @@ func (c *Context) Bind(obj interface{}) error {
 func (c *Context) BfrBind(obj interface{}) bool {
 	if err := c.Bind(obj); err != nil {
 		errString := binding.Translate(err)
-		if errString != "无法识别错误" {
+		if errString == "无法识别错误" {
 			c.FlushFailHttpResponse(err)
 		} else {
 			c.FlushFailHttpResponse(errors.New(errString))
