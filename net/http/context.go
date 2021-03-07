@@ -387,7 +387,6 @@ func (c *Context) BfrBind(obj interface{}) bool {
 		} else {
 			c.FlushFailHttpResponse(errors.New(errString))
 		}
-		c.FlushHttpClientError(code.RequestParamInCorrect, errString, nil)
 		return false
 	}
 	return true
