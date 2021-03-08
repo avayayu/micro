@@ -1,11 +1,11 @@
 package http
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-	"errors"
 )
 
 // CORSConfig represents all available options for the middleware.
@@ -85,6 +85,14 @@ func CORS(allowOriginHosts []string) HandlerFunc {
 			}
 			return false
 		},
+	}
+	return newCORS(config)
+}
+
+//CORSAll 开启所有的跨域
+func CORSAll() HandlerFunc {
+	config := &CORSConfig{
+		AllowAllOrigins: true,
 	}
 	return newCORS(config)
 }
