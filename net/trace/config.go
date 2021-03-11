@@ -8,9 +8,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/avayayu/micro/net/conf/dsn"
-	"github.com/avayayu/micro/net/conf/env"
-	xtime "github.com/avayayu/micro/time"
+	"gogs.bfr.com/zouhy/micro/net/conf/dsn"
+	"gogs.bfr.com/zouhy/micro/net/conf/env"
+	xtime "gogs.bfr.com/zouhy/micro/time"
 )
 
 var _traceDSN = "unixgram:///var/run/dapper-collect/dapper-collect.sock"

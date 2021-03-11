@@ -17,9 +17,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/avayayu/micro/net/conf/env"
-	"github.com/avayayu/micro/net/metadata"
-	"github.com/avayayu/micro/net/netutil/breaker"
+	"gogs.bfr.com/zouhy/micro/net/conf/env"
+	"gogs.bfr.com/zouhy/micro/net/metadata"
+	"gogs.bfr.com/zouhy/micro/net/netutil/breaker"
 
 	"github.com/gogo/protobuf/proto"
 	pkgerr "github.com/pkg/errors"

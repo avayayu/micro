@@ -3,7 +3,7 @@ package micro
 import (
 	"os"
 
-	"github.com/avayayu/micro/net/constants"
+	"gogs.bfr.com/zouhy/micro/net/constants"
 )
 
 func JudgeEnv() constants.ServerMode {

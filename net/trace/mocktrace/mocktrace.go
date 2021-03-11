@@ -1,7 +1,7 @@
 package mocktrace
 
 import (
-	"github.com/avayayu/micro/net/trace"
+	"gogs.bfr.com/zouhy/micro/net/trace"
 )
 
 // MockTrace .

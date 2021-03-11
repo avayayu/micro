@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/avayayu/micro/micro"
-	"github.com/avayayu/micro/net/http"
 	"go.uber.org/zap"
+	"gogs.bfr.com/zouhy/micro/micro"
+	"gogs.bfr.com/zouhy/micro/net/http"
 )
 
 const _module = "test"

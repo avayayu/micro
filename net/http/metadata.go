@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/avayayu/micro/net/conf/env"
-	"github.com/avayayu/micro/net/criticality"
-	"github.com/avayayu/micro/net/metadata"
+	"gogs.bfr.com/zouhy/micro/net/conf/env"
+	"gogs.bfr.com/zouhy/micro/net/criticality"
+	"gogs.bfr.com/zouhy/micro/net/metadata"
 
 	"github.com/pkg/errors"
 )

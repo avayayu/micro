@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	nmd "github.com/avayayu/micro/net/metadata"
-	"github.com/avayayu/micro/net/trace"
-	ztime "github.com/avayayu/micro/time"
 	"github.com/pkg/errors"
 	"github.com/siddontang/go/log"
 	"go.uber.org/zap"
+	nmd "gogs.bfr.com/zouhy/micro/net/metadata"
+	"gogs.bfr.com/zouhy/micro/net/trace"
+	ztime "gogs.bfr.com/zouhy/micro/time"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
@@ -257,7 +257,6 @@ func (s *RpcServer) Serve(lis net.Listener) error {
 	return s.server.Serve(lis)
 }
 
-
 func (s *RpcServer) Shutdown(ctx context.Context) (err error) {
 	ch := make(chan struct{})
 	go func() {
@@ -272,5 +271,3 @@ func (s *RpcServer) Shutdown(ctx context.Context) (err error) {
 	}
 	return
 }
-
-

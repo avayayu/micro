@@ -8,7 +8,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/avayayu/micro/net/conf/dsn"
+	"gogs.bfr.com/zouhy/micro/net/conf/dsn"
 )
 
 var (

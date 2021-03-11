@@ -1,6 +1,6 @@
 package http
 
-import "github.com/avayayu/micro/stat/metric"
+import "gogs.bfr.com/zouhy/micro/stat/metric"
 
 const (
 	clientNamespace = "http_client"
@@ -16,7 +16,7 @@ var (
 		Labels:    []string{"path", "caller", "method"},
 		Buckets:   []float64{5, 10, 25, 50, 100, 250, 500, 1000},
 	})
-	
+
 	_metricServerReqCodeTotal = metric.NewCounterVec(&metric.CounterVecOpts{
 		Namespace: serverNamespace,
 		Subsystem: "requests",

@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"strconv"
 
-	ecode "github.com/avayayu/micro/code"
-	"github.com/avayayu/micro/net/constants"
 	"github.com/pkg/errors"
+	ecode "gogs.bfr.com/zouhy/micro/code"
+	"gogs.bfr.com/zouhy/micro/net/constants"
 )
 
 var jsonContentType = []string{"application/json; charset=utf-8"}

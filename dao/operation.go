@@ -6,7 +6,7 @@ import (
 	"log"
 	"reflect"
 
-	ztime "github.com/avayayu/micro/time"
+	ztime "gogs.bfr.com/zouhy/micro/time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

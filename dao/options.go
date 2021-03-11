@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/avayayu/micro/lib"
+	"gogs.bfr.com/zouhy/micro/lib"
 	"gorm.io/gorm"
 )
 
