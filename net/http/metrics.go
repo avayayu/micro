@@ -1,6 +1,6 @@
 package http
 
-import "gogs.bfr.com/zouhy/micro/stat/metric"
+import "github.com/avayayu/micro/stat/metric"
 
 const (
 	clientNamespace = "http_client"

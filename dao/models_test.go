@@ -1,9 +1,9 @@
 package dao
 
 import (
-	"gogs.bfr.com/zouhy/micro/models"
-	mmodels "gogs.bfr.com/zouhy/micro/models"
-	ztime "gogs.bfr.com/zouhy/micro/time"
+	"github.com/avayayu/micro/models"
+	mmodels "github.com/avayayu/micro/models"
+	ztime "github.com/avayayu/micro/time"
 )
 
 //DeviceType 云端设备类型信息

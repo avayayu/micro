@@ -1,9 +1,9 @@
 package micro
 
 import (
+	"github.com/avayayu/micro/code"
+	"github.com/avayayu/micro/net/http"
 	"go.mongodb.org/mongo-driver/mongo"
-	"gogs.bfr.com/zouhy/micro/code"
-	"gogs.bfr.com/zouhy/micro/net/http"
 	"gorm.io/gorm"
 )
 

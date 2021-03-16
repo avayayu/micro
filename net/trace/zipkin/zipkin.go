@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	protogen "gogs.bfr.com/zouhy/micro/net/trace/proto"
+	protogen "github.com/avayayu/micro/net/trace/proto"
 
+	"github.com/avayayu/micro/net/trace"
 	"github.com/openzipkin/zipkin-go/model"
 	"github.com/openzipkin/zipkin-go/reporter"
 	"github.com/openzipkin/zipkin-go/reporter/http"
-	"gogs.bfr.com/zouhy/micro/net/trace"
 )
 
 type report struct {

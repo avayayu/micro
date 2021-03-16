@@ -11,14 +11,14 @@ import (
 	"sync"
 	"text/template"
 
-	"gogs.bfr.com/zouhy/micro/code"
+	"github.com/avayayu/micro/code"
 
+	"github.com/avayayu/micro/net/metadata"
 	"go.mongodb.org/mongo-driver/mongo"
-	"gogs.bfr.com/zouhy/micro/net/metadata"
 
-	ecode "gogs.bfr.com/zouhy/micro/code"
-	"gogs.bfr.com/zouhy/micro/net/http/binding"
-	"gogs.bfr.com/zouhy/micro/net/http/render"
+	ecode "github.com/avayayu/micro/code"
+	"github.com/avayayu/micro/net/http/binding"
+	"github.com/avayayu/micro/net/http/render"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/types"

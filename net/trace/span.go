@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	protogen "gogs.bfr.com/zouhy/micro/net/trace/proto"
+	protogen "github.com/avayayu/micro/net/trace/proto"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gogs.bfr.com/zouhy/micro/net/http"
+	"github.com/avayayu/micro/net/http"
 )
 
 type ResultType uint8

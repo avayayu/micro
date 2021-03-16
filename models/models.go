@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/avayayu/micro/lib"
+	ztime "github.com/avayayu/micro/time"
 	"github.com/bwmarrin/snowflake"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"gogs.bfr.com/zouhy/micro/lib"
-	ztime "gogs.bfr.com/zouhy/micro/time"
 	"gorm.io/gorm"
 )
 

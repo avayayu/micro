@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strconv"
 
-	"gogs.bfr.com/zouhy/micro/dao"
+	"github.com/avayayu/micro/dao"
 )
 
 type HttpRequest interface {

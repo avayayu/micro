@@ -14,13 +14,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/avayayu/micro/net/conf/dsn"
+	"github.com/avayayu/micro/net/constants"
+	"github.com/avayayu/micro/net/criticality"
+	"github.com/avayayu/micro/net/ip"
+	"github.com/avayayu/micro/net/metadata"
+	ztime "github.com/avayayu/micro/time"
 	pkgerr "github.com/pkg/errors"
-	"gogs.bfr.com/zouhy/micro/net/conf/dsn"
-	"gogs.bfr.com/zouhy/micro/net/constants"
-	"gogs.bfr.com/zouhy/micro/net/criticality"
-	"gogs.bfr.com/zouhy/micro/net/ip"
-	"gogs.bfr.com/zouhy/micro/net/metadata"
-	ztime "gogs.bfr.com/zouhy/micro/time"
 )
 
 const (

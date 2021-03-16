@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
+	ztime "github.com/avayayu/micro/time"
 	"github.com/pkg/errors"
-	ztime "gogs.bfr.com/zouhy/micro/time"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"

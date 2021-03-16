@@ -9,9 +9,9 @@ package dao
  * @输出一段不带属性的自定义信息
  */
 import (
+	"github.com/avayayu/micro/logging"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
-	"gogs.bfr.com/zouhy/micro/logging"
 	"gorm.io/gorm"
 )
 

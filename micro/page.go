@@ -4,9 +4,9 @@ import (
 	"errors"
 	"reflect"
 
-	"gogs.bfr.com/zouhy/micro/code"
-	"gogs.bfr.com/zouhy/micro/dao"
-	"gogs.bfr.com/zouhy/micro/net/http"
+	"github.com/avayayu/micro/code"
+	"github.com/avayayu/micro/dao"
+	"github.com/avayayu/micro/net/http"
 )
 
 //PagesQuery 根据请求与模型 进行资源的分页查询/排序/过滤
