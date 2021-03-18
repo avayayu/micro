@@ -210,6 +210,52 @@ func (query *QueryOptions) FindToMap(model, out interface{}, column string) erro
 	return nil
 }
 
+//RawToMap 将查询结果存放到map中，其中Column为作为key的列
+//如果Column不是主键将会自动覆盖
+func (query *QueryOptions) RawToMap(rawSql string, out interface{}, column string) error {
+	typ := reflect.TypeOf(out)
+	outValue := reflect.ValueOf(out).Elem()
+	if typ.Kind() != reflect.Ptr {
+		log.Fatal("out must be pointer")
+		return errors.New("out must be pointer")
+	}
+
+	if typ.Elem().Kind() != reflect.Map {
+		log.Fatal("out must be a pointer of golang Map")
+		return errors.New("out must be pointer")
+	}
+
+	typ = typ.Elem().Elem()
+	if (typ.Kind() != reflect.Ptr && typ.Kind() != reflect.Struct) || typ.Kind() == reflect.Ptr && typ.Elem().Kind() != reflect.Struct {
+		log.Fatal("element of out map must be a struct")
+		return errors.New("element of out map must be a struct")
+	}
+	// slice := reflect.MakeSlice(reflect.SliceOf(typ), 0, 0)
+
+	slice := reflect.New(reflect.SliceOf(typ))
+	sliceData := slice.Interface()
+
+	if err := query.Raw(rawSql, sliceData); err != nil {
+		return err
+	}
+
+	sliceValue := reflect.ValueOf(sliceData).Elem()
+	for i := 0; i < sliceValue.Len(); i++ {
+		value := sliceValue.Index(i)
+		var key reflect.Value
+		if value.Type().Kind() == reflect.Ptr {
+			valueStruct := value.Elem()
+			key = valueStruct.FieldByName(column)
+		} else {
+			key = value.FieldByName(column)
+		}
+
+		outValue.SetMapIndex(key, value)
+	}
+
+	return nil
+}
+
 // GetPage 从数据库中分页获取数据
 func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
 	var session *gorm.DB = query.parseQuery(query.session)

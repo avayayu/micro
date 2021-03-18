@@ -56,6 +56,7 @@ type Query interface {
 	PreLoad(Attrs ...string) Query
 	PluckList(model interface{}, out interface{}, fieldName string) error
 	CheckIDList(model interface{}, idList []models.Int64Str) error
+	RawToMap(rawSql string, out interface{}, column string) error
 }
 
 //Database 数据库管理
