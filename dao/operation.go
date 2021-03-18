@@ -6,7 +6,10 @@ import (
 	"log"
 	"reflect"
 
-	ztime "github.com/avayayu/micro/time"
+	"github.com/thoas/go-funk"
+	"gogs.bfr.com/zouhy/micro/lib"
+	"gogs.bfr.com/zouhy/micro/models"
+	ztime "gogs.bfr.com/zouhy/micro/time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -115,6 +118,34 @@ func (query *QueryOptions) First(model, out interface{}) (Found bool, err error)
 		return
 	}
 	return true, nil
+}
+
+func (query *QueryOptions) CheckIDList(model interface{}, idList []models.Int64Str) error {
+
+	if reflect.TypeOf(model).Kind() != reflect.Ptr {
+		panic("model must be ptr")
+	}
+
+	_idList := []models.Int64Str{}
+	if err := query.WhereQuery("id in (?)", idList).PluckList(model, &_idList, "id"); err != nil {
+		return err
+	}
+	notContains := []models.Int64Str{}
+	if len(idList) != len(_idList) {
+
+		for _, id := range idList {
+			if !funk.Contains(_idList, id) {
+				notContains = append(notContains, id)
+			}
+		}
+	}
+
+	modelsName := lib.GetTypeFullName(model)
+
+	if len(notContains) > 0 {
+		return fmt.Errorf("%v not exists in table %s", notContains, modelsName)
+	}
+	return nil
 }
 
 func (query *QueryOptions) Raw(sql string, out interface{}) error {

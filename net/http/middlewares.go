@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/avayayu/micro/code"
 	"github.com/dgrijalva/jwt-go"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
+	"gogs.bfr.com/zouhy/micro/code"
 )
 
 //TimeMiddleWare 接口访问延迟中间件

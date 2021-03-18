@@ -3,9 +3,9 @@ package zipkin
 import (
 	"time"
 
-	"github.com/avayayu/micro/net/conf/env"
-	"github.com/avayayu/micro/net/trace"
-	xtime "github.com/avayayu/micro/time"
+	"gogs.bfr.com/zouhy/micro/net/conf/env"
+	"gogs.bfr.com/zouhy/micro/net/trace"
+	xtime "gogs.bfr.com/zouhy/micro/time"
 )
 
 // Config config.

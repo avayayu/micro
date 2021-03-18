@@ -1,30 +1,29 @@
 package dao
 
 import (
-	"github.com/avayayu/micro/models"
-	mmodels "github.com/avayayu/micro/models"
-	ztime "github.com/avayayu/micro/time"
+	mmodels "gogs.bfr.com/zouhy/micro/models"
+	ztime "gogs.bfr.com/zouhy/micro/time"
 )
 
 //DeviceType 云端设备类型信息
 type DeviceType struct {
 	mmodels.Model
-	DeviceTypeName          string          `gorm:"Column:device_type_name;type:varchar(50);not null;UNIQUE_INDEX"` //设备类型名 官方名称
-	DeviceTypeCode          string          `gorm:"Column:device_type_code"`                                        //设备类型助记码
-	DeviceGovRegisterCode   string          `gorm:"Column:device_gov_register_code"`                                //设备类医疗器械注册编号
-	DeviceGovProductionCode string          `gorm:"Column:device_gov_production_code"`                              //设备类Production 生产许可编号
-	FactoryID               models.Int64Str `gorm:"Column:factory_id;type:bigint"`                                  //产商
-	IsReport                bool            `gorm:"Column:is_report"`                                               //是否生成报告
-	IsStructured            bool            `gorm:"Column:is_structured"`                                           //是否生成结构化数据
-	Age                     uint            `gorm:"Column:age"`                                                     //使用寿命
-	Weight                  float64         `gorm:"Column:weight"`                                                  //重量
-	MaximumLoad             float64         `gorm:"Column:maximum_load"`                                            //最大荷重
-	IsWifi                  bool            `gorm:"Column:is_wifi"`                                                 //是否有wifi
-	IsBluetooth             bool            `gorm:"Column:is_blue_tooth"`                                           //是否有蓝牙
-	IsDesktop               bool            `gorm:"Column:is_desktop"`                                              //是否有桌面程序
-	IsApp                   bool            `gorm:"Column:is_app"`                                                  //是否有APP
-	Factory                 DeviceFactory   `json:"factory" gorm:"references:factory_id;foreignkey:id"`             //厂商
-	Comments                string          `gorm:"Column:comment"`                                                 //备注信息
+	DeviceTypeName          string           `gorm:"Column:device_type_name;type:varchar(50);not null;UNIQUE_INDEX"` //设备类型名 官方名称
+	DeviceTypeCode          string           `gorm:"Column:device_type_code"`                                        //设备类型助记码
+	DeviceGovRegisterCode   string           `gorm:"Column:device_gov_register_code"`                                //设备类医疗器械注册编号
+	DeviceGovProductionCode string           `gorm:"Column:device_gov_production_code"`                              //设备类Production 生产许可编号
+	FactoryID               mmodels.Int64Str `gorm:"Column:factory_id;type:bigint"`                                  //产商
+	IsReport                bool             `gorm:"Column:is_report"`                                               //是否生成报告
+	IsStructured            bool             `gorm:"Column:is_structured"`                                           //是否生成结构化数据
+	Age                     uint             `gorm:"Column:age"`                                                     //使用寿命
+	Weight                  float64          `gorm:"Column:weight"`                                                  //重量
+	MaximumLoad             float64          `gorm:"Column:maximum_load"`                                            //最大荷重
+	IsWifi                  bool             `gorm:"Column:is_wifi"`                                                 //是否有wifi
+	IsBluetooth             bool             `gorm:"Column:is_blue_tooth"`                                           //是否有蓝牙
+	IsDesktop               bool             `gorm:"Column:is_desktop"`                                              //是否有桌面程序
+	IsApp                   bool             `gorm:"Column:is_app"`                                                  //是否有APP
+	Factory                 DeviceFactory    `json:"factory" gorm:"references:factory_id;foreignkey:id"`             //厂商
+	Comments                string           `gorm:"Column:comment"`                                                 //备注信息
 }
 
 //DeviceFactory 设备生产商

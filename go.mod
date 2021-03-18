@@ -1,4 +1,4 @@
-module github.com/avayayu/micro
+module gogs.bfr.com/zouhy/micro
 
 go 1.15
 

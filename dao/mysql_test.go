@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/avayayu/micro/dao/drivers/mysql"
-	"github.com/avayayu/micro/lib"
-	"github.com/avayayu/micro/models"
+	"gogs.bfr.com/zouhy/micro/dao/drivers/mysql"
+	"gogs.bfr.com/zouhy/micro/lib"
+	"gogs.bfr.com/zouhy/micro/models"
 )
 
 var dao DAO

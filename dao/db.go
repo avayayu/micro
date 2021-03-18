@@ -9,9 +9,10 @@ package dao
  * @输出一段不带属性的自定义信息
  */
 import (
-	"github.com/avayayu/micro/logging"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
+	"gogs.bfr.com/zouhy/micro/logging"
+	"gogs.bfr.com/zouhy/micro/models"
 	"gorm.io/gorm"
 )
 
@@ -54,6 +55,7 @@ type Query interface {
 	Order(order ...string) Query
 	PreLoad(Attrs ...string) Query
 	PluckList(model interface{}, out interface{}, fieldName string) error
+	CheckIDList(model interface{}, idList []models.Int64Str) error
 }
 
 //Database 数据库管理

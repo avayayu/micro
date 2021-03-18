@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/avayayu/micro/net/conf/env"
-	"github.com/avayayu/micro/net/ip"
+	"gogs.bfr.com/zouhy/micro/net/conf/env"
+	"gogs.bfr.com/zouhy/micro/net/ip"
 
 	"github.com/pkg/errors"
 )

@@ -12,7 +12,7 @@ import (
 
 	"github.com/philchia/agollo"
 
-	"github.com/avayayu/micro/net/conf/paladin"
+	"gogs.bfr.com/zouhy/micro/net/conf/paladin"
 )
 
 var (
