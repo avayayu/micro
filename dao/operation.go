@@ -1,10 +1,12 @@
 package dao
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 
 	"github.com/thoas/go-funk"
 	"gogs.bfr.com/zouhy/micro/lib"
@@ -347,4 +349,17 @@ func CheckError(err error) (bool, error) {
 		return true, nil
 	}
 	return false, err
+}
+
+func GetSQLIDQuery(idList []models.Int64Str) string {
+	var buf bytes.Buffer
+	buf.WriteString("(")
+	for _, id := range idList {
+		buf.WriteString(strconv.FormatUint(uint64(id), 10))
+		buf.WriteString(",")
+	}
+	buf.Truncate(buf.Len() - 1)
+	buf.WriteString(")")
+
+	return buf.String()
 }

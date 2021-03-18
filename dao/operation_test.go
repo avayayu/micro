@@ -49,3 +49,32 @@ func TestQueryOptions_CheckIDList(t *testing.T) {
 		})
 	}
 }
+
+func TestGetSQLIDQuery(t *testing.T) {
+	type args struct {
+		idList []models.Int64Str
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "test",
+			args: args{
+				idList: []models.Int64Str{
+					1336589085397450752, 1336589087419105280,
+				},
+			},
+			want: "(1336589085397450752,1336589087419105280)",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetSQLIDQuery(tt.args.idList); got != tt.want {
+				t.Errorf("GetSQLIDQuery() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
