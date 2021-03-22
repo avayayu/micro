@@ -20,6 +20,8 @@ import (
 // Create 创建某模型一行
 func (query *QueryOptions) Create(model interface{}, createdBy string, value interface{}) error {
 
+	defer query.Reset()
+
 	if reflect.TypeOf(value).Kind() != reflect.Ptr {
 		panic("value must be ptr")
 	}
@@ -70,7 +72,7 @@ func (query *QueryOptions) Save(value interface{}) error {
 
 //Count 根据querys中的where进行数量的统计
 func (query *QueryOptions) Count(model interface{}) (count int64) {
-
+	defer query.Reset()
 	session := query.session.Model(model)
 	session = session.Where(query.where, query.conditions...)
 	session.Count(&count)
@@ -80,6 +82,9 @@ func (query *QueryOptions) Count(model interface{}) (count int64) {
 
 // Updates 更新模型
 func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
+
+	defer query.Reset()
+
 	session := query.session.Omit(clause.Associations).Model(model)
 
 	if query.where != "" {
@@ -106,6 +111,8 @@ func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value in
 
 // First 符合条件的第一行
 func (query *QueryOptions) First(model, out interface{}) (Found bool, err error) {
+	defer query.Reset()
+
 	op := query.session.Model(model)
 
 	op = query.parseQuery(op)
@@ -123,7 +130,7 @@ func (query *QueryOptions) First(model, out interface{}) (Found bool, err error)
 }
 
 func (query *QueryOptions) CheckIDList(model interface{}, idList []models.Int64Str) error {
-
+	defer query.Reset()
 	if reflect.TypeOf(model).Kind() != reflect.Ptr {
 		panic("model must be ptr")
 	}
@@ -151,6 +158,7 @@ func (query *QueryOptions) CheckIDList(model interface{}, idList []models.Int64S
 }
 
 func (query *QueryOptions) Raw(sql string, out interface{}) error {
+	defer query.Reset()
 	if reflect.TypeOf(out).Kind() != reflect.Ptr {
 		panic("out must be ptr")
 	}
@@ -159,17 +167,20 @@ func (query *QueryOptions) Raw(sql string, out interface{}) error {
 
 // Find 根据条件查询到的数据
 func (query *QueryOptions) Find(model, out interface{}) error {
+	defer query.Reset()
 	return query.parseQuery(query.session.Model(model)).Find(out).Error
 }
 
 //Update 更新单列数据
 func (query *QueryOptions) Update(model interface{}, column string, value interface{}) error {
+	defer query.Reset()
 	return query.parseQuery(query.session.Model(model)).Update(column, value).Error
 }
 
 //FindToMap 将查询结果存放到map中，其中Column为作为key的列
 //如果Column不是主键将会自动覆盖
 func (query *QueryOptions) FindToMap(model, out interface{}, column string) error {
+	defer query.Reset()
 	typ := reflect.TypeOf(out)
 	outValue := reflect.ValueOf(out).Elem()
 	if typ.Kind() != reflect.Ptr {
@@ -215,6 +226,7 @@ func (query *QueryOptions) FindToMap(model, out interface{}, column string) erro
 //RawToMap 将查询结果存放到map中，其中Column为作为key的列
 //如果Column不是主键将会自动覆盖
 func (query *QueryOptions) RawToMap(rawSql string, out interface{}, column string) error {
+	defer query.Reset()
 	typ := reflect.TypeOf(out)
 	outValue := reflect.ValueOf(out).Elem()
 	if typ.Kind() != reflect.Ptr {
@@ -260,6 +272,7 @@ func (query *QueryOptions) RawToMap(rawSql string, out interface{}, column strin
 
 // GetPage 从数据库中分页获取数据
 func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
+	defer query.Reset()
 	var session *gorm.DB = query.parseQuery(query.session)
 
 	err := session.Model(model).Count(totalCount).Error
@@ -275,7 +288,7 @@ func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize i
 
 // GetPage 从数据库中分页获取数据
 func (query *QueryOptions) GetPageWithFilters(parameter interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
-
+	defer query.Reset()
 	var session *gorm.DB = query.session
 
 	if filters != nil {
@@ -310,7 +323,7 @@ func (query *QueryOptions) GetPageWithFilters(parameter interface{}, filters *Fi
 
 //GetPageByRaw 根据原始的sql进行分页查询
 func (query *QueryOptions) GetPageByRaw(sql string, out interface{}, pageIndex, pageSize int, totalCount *int64, where ...interface{}) error {
-
+	defer query.Reset()
 	data := query.session.Raw(sql, where...)
 
 	err := data.Count(totalCount).Error
@@ -327,7 +340,19 @@ func (query *QueryOptions) GetPageByRaw(sql string, out interface{}, pageIndex, 
 
 //PluckList 查询某表中的某一列 切片
 func (query *QueryOptions) PluckList(model, out interface{}, fieldName string) error {
+	defer query.Reset()
 	return query.parseQuery(query.session.Model(model)).Pluck(fieldName, out).Error
+}
+
+//Reset 一次查询重置条件
+func (query *QueryOptions) Reset() {
+	query.where = ""
+	query.conditions = []interface{}{}
+	query.joinTableList = []string{}
+	query.order = []string{}
+	query.preloadList = []string{}
+	query.selectList = []string{}
+	query.Ctx = nil
 }
 
 func (query *QueryOptions) Delete(model interface{}, deletedBy string, filters ...interface{}) error {
