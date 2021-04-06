@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/avayayu/micro/net/http"
 	"github.com/dgrijalva/jwt-go"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
@@ -221,4 +222,25 @@ func at(t time.Time, f func()) {
 	}
 	f()
 	jwt.TimeFunc = time.Now
+}
+
+//CrosHandler 简单开启所有的跨域功能
+func CrosHandler() http.HandlerFunc {
+	return func(context *http.Context) {
+		method := context.Request.Method
+		context.Writer.Header().Set("Access-Control-Allow-Origin", "*") // 设置允许访问所有域
+		context.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE,UPDATE")
+		context.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Length, X-CSRF-Token, Token,session,X_Requested_With,Accept, Origin, Host, Connection, Accept-Encoding, Accept-Language,DNT, X-CustomHeader, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Pragma,token,openid,opentoken")
+		context.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers,Cache-Control,Content-Language,Content-Type,Expires,Last-Modified,Pragma,FooBar")
+		context.Writer.Header().Set("Access-Control-Max-Age", "172800")
+		context.Writer.Header().Set("Access-Control-Allow-Credentials", "false")
+		context.Set("content-type", "application/json")
+
+		if method == "OPTIONS" {
+			context.FlushHttpResponse()
+		}
+
+		//处理请求
+		context.Next()
+	}
 }
