@@ -225,7 +225,7 @@ func at(t time.Time, f func()) {
 }
 
 //CrosHandler 简单开启所有的跨域功能
-func CrosHandler() http.HandlerFunc {
+func CrosHandler() HandlerFunc {
 	return func(context *http.Context) {
 		method := context.Request.Method
 		context.Writer.Header().Set("Access-Control-Allow-Origin", "*") // 设置允许访问所有域
