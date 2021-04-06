@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/avayayu/micro/net/http"
 	"github.com/dgrijalva/jwt-go"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
@@ -226,7 +225,7 @@ func at(t time.Time, f func()) {
 
 //CrosHandler 简单开启所有的跨域功能
 func CrosHandler() HandlerFunc {
-	return func(context *http.Context) {
+	return func(context *Context) {
 		method := context.Request.Method
 		context.Writer.Header().Set("Access-Control-Allow-Origin", "*") // 设置允许访问所有域
 		context.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE,UPDATE")
