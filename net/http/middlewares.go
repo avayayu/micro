@@ -8,6 +8,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"gogs.bfr.com/zouhy/micro/code"
+	"gogs.bfr.com/zouhy/micro/models"
 )
 
 //TimeMiddleWare 接口访问延迟中间件
@@ -89,7 +90,8 @@ type JWT struct {
 
 //JWTclaims 载荷
 type JWTclaims struct {
-	UserID string `json:"username"`
+	ID       models.Int64Str `json:"id"`
+	UserName string          `json:"userName"`
 	// Role   string `json:"role"`
 	jwt.StandardClaims
 }
@@ -145,7 +147,7 @@ func (j *JWT) ParseToken(tokenString string) (*JWTclaims, error) {
 }
 
 //RefreshToken 更新Token 从当前时间延续一个月的有效期
-func (j *JWT) RefreshToken(tokenString string) (string, error) {
+func (j *JWT) RefreshToken(tokenString string, tokenLast time.Duration) (string, error) {
 	jwt.TimeFunc = func() time.Time {
 		return time.Unix(0, 0)
 	}
@@ -157,7 +159,7 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 	}
 	if claims, ok := token.Claims.(*JWTclaims); ok && token.Valid {
 		jwt.TimeFunc = time.Now
-		claims.StandardClaims.ExpiresAt = time.Now().Add(24 * time.Hour * 30).Unix()
+		claims.StandardClaims.ExpiresAt = time.Now().Add(tokenLast).Unix()
 		return j.CreateToken(*claims)
 	}
 	return "", code.JWTErrorInvalid
@@ -187,8 +189,7 @@ func JWTAuth() HandlerFunc {
 			return
 		} else {
 			c.Set("claims", claims)
-			userID := claims.UserID
-			c.Set("reqUserID", userID)
+			c.Set("reqUserID", claims.ID)
 		}
 		// 继续交由下一个路由处理,并将解析出的信息传递下去
 		c.Next()
@@ -196,16 +197,17 @@ func JWTAuth() HandlerFunc {
 }
 
 //GenerateToken 为用户生成Token
-func GenerateToken(userID string) (string, error) {
+func GenerateToken(id models.Int64Str, userName string, lastDuration time.Duration) (string, error) {
 	j := &JWT{
-		[]byte("bfrcloudbrain"),
+		[]byte("bfr-cloud"),
 	}
 	claims := JWTclaims{
-		userID,
+		id,
+		userName,
 		jwt.StandardClaims{
-			NotBefore: int64(time.Now().Unix() - 1000),       //签名生效时间
-			ExpiresAt: int64(time.Now().Unix() + 3600*24*30), //签名过期时间 一个月
-			Issuer:    "bfrcloudbrain",                       //签名发行者
+			NotBefore: int64(time.Now().Unix() - 1000),            //签名生效时间
+			ExpiresAt: int64(time.Now().Add(lastDuration).Unix()), //签名过期时间 一个月
+			Issuer:    "bfr-cloud",                                //签名发行者
 		},
 	}
 	token, err := j.CreateToken(claims)
