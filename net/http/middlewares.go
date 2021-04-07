@@ -92,6 +92,9 @@ type JWT struct {
 type JWTclaims struct {
 	ID       models.Int64Str `json:"id"`
 	UserName string          `json:"userName"`
+	Email    string          `json:"email"`
+	Phone    string          `json:"phone"`
+	WxID     string          `json:"wxID"`
 	// Role   string `json:"role"`
 	jwt.StandardClaims
 }
@@ -196,14 +199,17 @@ func JWTAuth() HandlerFunc {
 	}
 }
 
-//GenerateToken 为用户生成Token
-func GenerateToken(id models.Int64Str, userName string, lastDuration time.Duration) (string, error) {
+//GenerateToken 为用户生成Token claim可以为空 只有id是必须的
+func GenerateToken(id models.Int64Str, claim *JWTclaims, lastDuration time.Duration) (string, error) {
 	j := &JWT{
 		[]byte("bfr-cloud"),
 	}
 	claims := JWTclaims{
 		id,
-		userName,
+		claim.UserName,
+		claim.Email,
+		claim.Phone,
+		claim.WxID,
 		jwt.StandardClaims{
 			NotBefore: int64(time.Now().Unix() - 1000),            //签名生效时间
 			ExpiresAt: int64(time.Now().Add(lastDuration).Unix()), //签名过期时间 一个月
