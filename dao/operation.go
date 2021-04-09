@@ -129,8 +129,9 @@ func (query *QueryOptions) First(model, out interface{}) (Found bool, err error)
 	return true, nil
 }
 
-func (query *QueryOptions) Debug() {
+func (query *QueryOptions) Debug() Query {
 	query.session = query.session.Debug()
+	return query
 }
 
 func (query *QueryOptions) CheckIDList(model interface{}, idList []models.Int64Str) error {
