@@ -129,6 +129,10 @@ func (query *QueryOptions) First(model, out interface{}) (Found bool, err error)
 	return true, nil
 }
 
+func (query *QueryOptions) Debug() {
+	query.session = query.session.Debug()
+}
+
 func (query *QueryOptions) CheckIDList(model interface{}, idList []models.Int64Str) error {
 	defer query.Reset()
 	if reflect.TypeOf(model).Kind() != reflect.Ptr {
