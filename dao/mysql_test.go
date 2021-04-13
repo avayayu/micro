@@ -368,3 +368,40 @@ func TestQueryOptions_FindToMap(t *testing.T) {
 		})
 	}
 }
+
+func TestQueryOptions_Like(t *testing.T) {
+
+	type args struct {
+		where Model
+	}
+
+	outData3 := []*DeviceFactory{}
+
+	tests := []struct {
+		name    string
+		query   Query
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:  "map to Role id test",
+			query: dao.NewQuery().Debug(),
+			args: args{
+				where: &DeviceFactory{
+					FactoryName: "布法罗",
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.query.Like(tt.args.where).Find(&DeviceFactory{}, &outData3); (err != nil) != tt.wantErr {
+				t.Errorf("QueryOptions.FindToMap() error = %v, wantErr %v", err, tt.wantErr)
+			} else {
+				fmt.Println(outData3)
+			}
+		})
+	}
+}

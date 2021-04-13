@@ -13,7 +13,9 @@ import (
 )
 
 var JSONColumn map[string]map[string]string
+var fieldNameGormNameMap map[string]map[string]string
 var orderMux sync.Mutex
+var fieldNameGormNameMapMux sync.Mutex
 
 //QueryOptions 分页排序
 type QueryOptions struct {
@@ -38,6 +40,57 @@ func (options *QueryOptions) WhereQuery(where string, conditions ...interface{})
 	options.conditions = conditions
 	return options
 }
+
+func (options *QueryOptions) Where(where Model) Query {
+	options.session = options.session.Where(where)
+	return options
+}
+
+func (options *QueryOptions) Or(where Model) Query {
+	options.session = options.session.Or(where)
+	return options
+}
+
+func (options *QueryOptions) Not(where Model) Query {
+	options.session = options.session.Not(where)
+	return options
+}
+
+func (options *QueryOptions) Like(where Model) Query {
+	if where == nil {
+		return options
+	}
+	nameMap := getTableFieldNameGormName(where)
+
+	typ := reflect.TypeOf(where)
+	if typ.Kind() != reflect.Ptr {
+		panic("need ptr")
+	}
+	typ = typ.Elem()
+	val := reflect.ValueOf(where).Elem()
+	for i := 0; i < typ.NumField(); i++ {
+		fieldTyp := typ.Field(i)
+		value := val.Field(i)
+
+		if gormName, ok := nameMap[fieldTyp.Name]; !ok {
+			continue
+		} else {
+			if !value.IsZero() {
+				subSql := fmt.Sprintf("%s like (?)", gormName)
+				condition := "%" + value.String() + "%"
+				options.session = options.session.Where(subSql, condition)
+			}
+		}
+
+	}
+	return options
+}
+
+// func (options *QueryOptions) WhereQuery(where string, conditions ...interface{}) Query {
+// 	options.where = where
+// 	options.conditions = conditions
+// 	return options
+// }
 
 func (options *QueryOptions) Select(attrs ...string) Query {
 	options.selectList = append(options.selectList, attrs...)
@@ -252,4 +305,40 @@ func (order *Order) GetPageOrder(models interface{}, pageOrder *QueryOptions) *Q
 		}
 	}
 	return pageOrder
+}
+
+func getTableFieldNameGormName(model Model) map[string]string {
+	fieldNameGormNameMapMux.Lock()
+	defer fieldNameGormNameMapMux.Unlock()
+
+	if fieldNameGormNameMap == nil {
+		fieldNameGormNameMap = make(map[string]map[string]string)
+	}
+
+	if nameMap, ok := fieldNameGormNameMap[model.TableName()]; ok {
+		return nameMap
+	}
+
+	nameMap := make(map[string]string)
+
+	typ := reflect.TypeOf(model)
+
+	if typ.Kind() != reflect.Ptr {
+		panic("need ptr")
+	}
+
+	typ = typ.Elem()
+
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		gormTag := field.Tag.Get("gorm")
+		gormTagArr := strings.Split(gormTag, ";")
+		for _, tag := range gormTagArr {
+			if strings.Contains(strings.ToLower(tag), "column") {
+				column := strings.Split(tag, ":")[1]
+				nameMap[field.Name] = column
+			}
+		}
+	}
+	return nameMap
 }

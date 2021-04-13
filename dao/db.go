@@ -34,6 +34,10 @@ type Transactions interface {
 	Execute(sub func(query Query) error)
 }
 
+type Model interface {
+	TableName() string
+}
+
 type Query interface {
 	Model(model interface{}) Query
 	Create(model interface{}, createdBy string, value interface{}) error
@@ -54,6 +58,10 @@ type Query interface {
 	Joins(Table ...string) Query
 	Order(order ...string) Query
 	PreLoad(Attrs ...string) Query
+	Where(where Model) Query
+	Like(where Model) Query
+	Or(where Model) Query
+	Not(where Model) Query
 	PluckList(model interface{}, out interface{}, fieldName string) error
 	CheckIDList(model interface{}, idList []models.Int64Str) error
 	RawToMap(rawSql string, out interface{}, column string) error
