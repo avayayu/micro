@@ -121,12 +121,9 @@ func modelJSONGormMap(parameter interface{}) {
 		rType := reflect.TypeOf(parameter).Elem()
 		for i := 0; i < rType.NumField(); i++ {
 			t := rType.Field(i)
-			jsonKey := t.Tag.Get("json")
-			if jsonKey == "-" || jsonKey == "" {
-				jsonKey = t.Tag.Get("form")
-				if jsonKey == "-" || jsonKey == "" {
-					continue
-				}
+			jsonKey := CheckTag(t)
+			if jsonKey == "" || jsonKey == "-" {
+				continue
 			}
 			column := t.Tag.Get("gorm")
 			if column == "" {
@@ -188,8 +185,8 @@ func RetreiveFilters(parameter interface{}) map[string][]FilterType {
 	rType := reflect.TypeOf(parameter).Elem()
 	for i := 0; i < rType.NumField(); i++ {
 		t := rType.Field(i)
-		jsonKey := t.Tag.Get("json")
-		if jsonKey == "-" {
+		jsonKey := CheckTag(t)
+		if jsonKey == "" || jsonKey == "-" {
 			continue
 		}
 		column := t.Tag.Get("filters")
@@ -233,4 +230,13 @@ func JudgeFilters(parameter interface{}, column string, filterType FilterType) (
 		}
 	}
 	return
+}
+
+func CheckTag(t reflect.StructField) string {
+	jsonKey := t.Tag.Get("json")
+	formKey := t.Tag.Get("form")
+	if jsonKey == "-" || jsonKey == "" {
+		jsonKey = formKey
+	}
+	return jsonKey
 }
