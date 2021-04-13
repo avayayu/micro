@@ -99,6 +99,18 @@ func modelJSONGormMap(parameter interface{}) {
 	}
 	parameterName := reflect.TypeOf(parameter).Elem().Name()
 
+	var tableName string
+	if rmodel, ok := parameter.(FilterModels); ok {
+		dataModel := reflect.ValueOf(rmodel.OrmModels())
+		funcTableName := dataModel.MethodByName("TableName")
+		if funcTableName.IsValid() {
+			result := funcTableName.Call(nil)
+			if len(result) > 0 {
+				tableName = result[0].String()
+			}
+		}
+
+	}
 	filterMux.Lock()
 	defer filterMux.Unlock()
 	if JSONColumn == nil {
@@ -111,7 +123,10 @@ func modelJSONGormMap(parameter interface{}) {
 			t := rType.Field(i)
 			jsonKey := t.Tag.Get("json")
 			if jsonKey == "-" || jsonKey == "" {
-				continue
+				jsonKey = t.Tag.Get("form")
+				if jsonKey == "-" || jsonKey == "" {
+					continue
+				}
 			}
 			column := t.Tag.Get("gorm")
 			if column == "" {
@@ -122,7 +137,12 @@ func modelJSONGormMap(parameter interface{}) {
 				for _, field := range gormArr {
 					if strings.Contains(strings.ToLower(field), "column") {
 						fieldArray := strings.Split(field, ":")
-						mapData[jsonKey] = fieldArray[1]
+						if tableName != "" {
+							mapData[jsonKey] = fmt.Sprintf("%s.%s", tableName, fieldArray[1])
+						} else {
+							mapData[jsonKey] = fieldArray[1]
+						}
+
 					}
 				}
 			}

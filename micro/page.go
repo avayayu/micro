@@ -48,9 +48,7 @@ func PagesQuery(parameter interface{}, out interface{}, db dao.DAO, request http
 	query = query.Filter(parameter, filters)
 
 	err = query.GetPageWithFilters(dataModel, filters, out, page, perPage, &totalCount)
-	if err != nil {
-		response.FlushHttpClientError(code.DBQueryError, "数据库查询出错", err)
-	}
+
 	return
 }
 
