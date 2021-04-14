@@ -42,7 +42,7 @@ type Query interface {
 	Model(model interface{}) Query
 	Create(model interface{}, createdBy string, value interface{}) error
 	Update(model interface{}, column string, value interface{}) error
-	Updates(model interface{}, updatedBy string, value interface{}, filters ...interface{}) error
+	Updates(model interface{}, UpdatesBy string, value map[string]interface{}, filters ...interface{}) error
 	Delete(model interface{}, deletedBy string, filters ...interface{}) error
 	First(model, out interface{}) (Found bool, err error)
 	Find(model, out interface{}) error
@@ -62,6 +62,7 @@ type Query interface {
 	Like(where Model) Query
 	Or(where Model) Query
 	Not(where Model) Query
+	UpdateModel(model Model, where Model, updatedBy string) error
 	PluckList(model interface{}, out interface{}, fieldName string) error
 	CheckIDList(model interface{}, idList []models.Int64Str) error
 	RawToMap(rawSql string, out interface{}, column string) error

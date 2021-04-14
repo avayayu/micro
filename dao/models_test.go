@@ -33,7 +33,7 @@ type DeviceFactory struct {
 	Comments    string `gorm:"Column:comments"`                                //备注信息
 }
 
-func (p DeviceFactory) TableName() string {
+func (p *DeviceFactory) TableName() string {
 	return "device_factory"
 }
 

@@ -65,6 +65,37 @@ func (query *QueryOptions) Create(model interface{}, createdBy string, value int
 
 }
 
+func (query *QueryOptions) UpdateModel(model Model, where Model, updatedBy string) error {
+	querySession := query.Where(where)
+	typ := reflect.TypeOf(model)
+	val := reflect.ValueOf(model)
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+		val = val.Elem()
+	} else {
+		panic("model must be ptr")
+	}
+
+	nameMap := getTableFieldNameGormName(where)
+
+	updatesMap := map[string]interface{}{}
+
+	for i := 0; i < typ.NumField(); i++ {
+		fieldTyp := typ.Field(i)
+		field := val.Field(i)
+
+		if gormName, ok := nameMap[fieldTyp.Name]; !ok {
+			continue
+		} else {
+			if !field.IsZero() {
+				updatesMap[gormName] = field.String()
+			}
+		}
+	}
+	return querySession.Updates(model, updatedBy, updatesMap)
+
+}
+
 // Save 保存更新
 func (query *QueryOptions) Save(value interface{}) error {
 	return query.session.Omit(clause.Associations).Save(value).Error
@@ -81,7 +112,7 @@ func (query *QueryOptions) Count(model interface{}) (count int64) {
 }
 
 // Updates 更新模型
-func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value interface{}, filters ...interface{}) error {
+func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value map[string]interface{}, filters ...interface{}) error {
 
 	defer query.Reset()
 
@@ -101,12 +132,8 @@ func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value in
 			session = session.Where(filters[i], filters[i+1])
 		}
 	}
-
-	if query.where == "" && len(filters) == 0 {
-		log.Fatalln("updates data in no condition")
-	}
-
-	return session.Update("updated_by", UpdatesBy).Updates(value).Error
+	value["updated_by"] = UpdatesBy
+	return session.Updates(value).Error
 }
 
 // First 符合条件的第一行

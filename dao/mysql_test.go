@@ -135,7 +135,7 @@ func TestDB_Updates(t *testing.T) {
 	type args struct {
 		model     interface{}
 		UpdatesBy string
-		value     interface{}
+		value     map[string]interface{}
 		filters   []interface{}
 	}
 	tests := []struct {
@@ -399,6 +399,46 @@ func TestQueryOptions_Like(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.query.Like(tt.args.where).Find(&DeviceFactory{}, &outData3); (err != nil) != tt.wantErr {
 				t.Errorf("QueryOptions.FindToMap() error = %v, wantErr %v", err, tt.wantErr)
+			} else {
+				fmt.Println(outData3)
+			}
+		})
+	}
+}
+
+func TestQueryOptions_UpdateModel(t *testing.T) {
+
+	type args struct {
+		Where Model
+		Model Model
+	}
+
+	outData3 := []*DeviceFactory{}
+
+	tests := []struct {
+		name    string
+		query   Query
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:  "map to Role id test",
+			query: dao.NewQuery().Debug(),
+			args: args{
+				Model: &DeviceFactory{
+					Comments: "强",
+				},
+				Where: &DeviceFactory{FactoryName: "布法罗"},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if err := tt.query.Debug().UpdateModel(tt.args.Model, tt.args.Where, "zouhy"); (err != nil) != tt.wantErr {
+				t.Errorf("QueryOptions.UpdateModel() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
 				fmt.Println(outData3)
 			}
