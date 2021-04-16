@@ -62,6 +62,8 @@ type Query interface {
 	Like(where Model) Query
 	Or(where Model) Query
 	Not(where Model) Query
+	//column为结构体的Column 非数据库的column !important
+	In(where Model, column string, value interface{}) Query
 	UpdateModel(model Model, where Model, updatedBy string) error
 	PluckList(model interface{}, out interface{}, fieldName string) error
 	CheckIDList(model interface{}, idList []models.Int64Str) error

@@ -14,8 +14,13 @@ import (
 
 var JSONColumn map[string]map[string]string
 var fieldNameGormNameMap map[string]map[string]string
+var primaryKeyColumnMap map[string]string
 var orderMux sync.Mutex
 var fieldNameGormNameMapMux sync.Mutex
+
+func init() {
+	primaryKeyColumnMap = make(map[string]string)
+}
 
 //QueryOptions 分页排序
 type QueryOptions struct {
@@ -53,6 +58,17 @@ func (options *QueryOptions) Or(where Model) Query {
 
 func (options *QueryOptions) Not(where Model) Query {
 	options.session = options.session.Not(where)
+	return options
+}
+
+func (options *QueryOptions) In(where Model, column string, value interface{}) Query {
+	nameMap := getTableFieldNameGormName(where)
+	column, ok := nameMap[column]
+	if !ok {
+		panic(fmt.Sprintf("%s not in where Model", column))
+	}
+	sql := fmt.Sprintf("%s in (?)", column)
+	options.session = options.session.Where(sql, value)
 	return options
 }
 
@@ -341,4 +357,26 @@ func getTableFieldNameGormName(model Model) map[string]string {
 		}
 	}
 	return nameMap
+}
+
+func findPrimaryColumn(model interface{}) string {
+	typ := reflect.TypeOf(model)
+	if typ.Kind() != reflect.Ptr {
+		panic("need type of ptr")
+	}
+	var column string
+	typ = typ.Elem()
+	if column = primaryKeyColumnMap[typ.Name()]; column != "" {
+		return column
+	}
+
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		tag := field.Tag.Get("gorm")
+		if strings.Contains(tag, "primary") {
+			return field.Name
+		}
+	}
+
+	return ""
 }

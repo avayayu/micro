@@ -189,6 +189,8 @@ func (query *QueryOptions) CheckIDList(model interface{}, idList []models.Int64S
 	return nil
 }
 
+
+
 func (query *QueryOptions) Raw(sql string, out interface{}) error {
 	defer query.Reset()
 	if reflect.TypeOf(out).Kind() != reflect.Ptr {
