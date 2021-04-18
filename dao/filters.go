@@ -155,21 +155,7 @@ func RetreiveFilters(parameter interface{}) map[string][]FilterType {
 	// var models interface{}
 
 	parameterName := reflect.TypeOf(parameter).Elem().Name()
-
-	// if _, ok := reflect.TypeOf(models).Elem().MethodByName("TableName"); !ok {
-	// 	if realModels, ok := parameter.(FilterModels); !ok {
-	// 		panic("parameter not have method TableName nor not a FilterModels")
-	// 	} else {
-	// 		models = realModels.OrmModels()
-	// 		if _, ok := reflect.TypeOf(models).Elem().MethodByName("TableName"); !ok {
-	// 			panic("parameter not have method TableName nor not a FilterModels")
-	// 		} else {
-	// 			tableName = reflect.ValueOf(models).MethodByName("TableName").Call(nil)[0].String()
-	// 		}
-	// 	}
-	// } else {
-	// 	tableName = reflect.ValueOf(models).MethodByName("TableName").Call(nil)[0].String()
-	// }
+ 
 	filterMux.Lock()
 	defer filterMux.Unlock()
 	if filtersColumn == nil {
