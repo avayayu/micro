@@ -189,7 +189,10 @@ func (query *QueryOptions) CheckIDList(model interface{}, idList []models.Int64S
 	return nil
 }
 
-
+func (query *QueryOptions) Unscoped() Query {
+	query.session = query.session.Unscoped()
+	return query
+}
 
 func (query *QueryOptions) Raw(sql string, out interface{}) error {
 	defer query.Reset()
