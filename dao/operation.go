@@ -393,7 +393,7 @@ func (query *QueryOptions) Reset() {
 }
 
 func (query *QueryOptions) Delete(model interface{}, deletedBy string, filters ...interface{}) error {
-	var op *gorm.DB = query.session.Model(model)
+	var op *gorm.DB = query.parseQuery(query.session.Model(model))
 
 	if len(filters)%2 != 0 {
 		panic("filters length must be even")
