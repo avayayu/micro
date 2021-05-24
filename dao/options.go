@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"gogs.bfr.com/zouhy/micro/lib"
+	"gogs.bfr.com/zouhy/micro/models"
 	"gorm.io/gorm"
 )
 
@@ -347,14 +348,23 @@ func getTableFieldNameGormName(model Model) map[string]string {
 
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		gormTag := field.Tag.Get("gorm")
-		gormTagArr := strings.Split(gormTag, ";")
-		for _, tag := range gormTagArr {
-			if strings.Contains(strings.ToLower(tag), "column") {
-				column := strings.Split(tag, ":")[1]
-				nameMap[field.Name] = column
+
+		if field.Type.Kind() == reflect.TypeOf(models.Model{}).Kind() {
+			nameMapTemp := models.ModelNameMap()
+			for key, value := range nameMapTemp {
+				nameMap[key] = value
+			}
+		} else {
+			gormTag := field.Tag.Get("gorm")
+			gormTagArr := strings.Split(gormTag, ";")
+			for _, tag := range gormTagArr {
+				if strings.Contains(strings.ToLower(tag), "column") {
+					column := strings.Split(tag, ":")[1]
+					nameMap[field.Name] = column
+				}
 			}
 		}
+
 	}
 	return nameMap
 }

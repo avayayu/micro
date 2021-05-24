@@ -49,6 +49,18 @@ type Model struct {
 	DeletedBy string         `gorm:"column:deleted_by;type:varchar(50);default:0;not null;" json:"-" form:"deleted_by"`       // 删除人
 }
 
+func ModelNameMap() map[string]string {
+	return map[string]string{
+		"ID":        "id",
+		"CreatedAt": "created_at",
+		"UpdatedAt": "updated_at",
+		"DeletedAt": "deleted_at",
+		"CreatedBy": "created_by",
+		"UpdatedBy": "updated_by",
+		"DeletedBy": "deleted_by",
+	}
+}
+
 //BeforeCreate 基本类的创建钩子
 func (model *Model) BeforeCreate(tx *gorm.DB) error {
 
