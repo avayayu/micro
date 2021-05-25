@@ -192,6 +192,11 @@ func (options *QueryOptions) ParseOrder(parameter interface{}, order *Order) Que
 	return options
 }
 
+func (options *QueryOptions) Limit(count int) Query {
+	options.session = options.session.Limit(count)
+	return options
+}
+
 func (options *QueryOptions) parseQuery(session *gorm.DB) *gorm.DB {
 
 	if options.Ctx != nil {

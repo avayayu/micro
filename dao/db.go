@@ -60,6 +60,7 @@ type Query interface {
 	PreLoad(Attrs ...string) Query
 	Where(where Model) Query
 	Like(where Model) Query
+	Limit(count int) Query
 	Or(where Model) Query
 	Not(where Model) Query
 	//column为结构体的Column 非数据库的column !important
