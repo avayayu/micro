@@ -1,4 +1,4 @@
-module gogs.bfr.com/zouhy/micro
+module gogs.buffalo-robot.com/zouhy/micro
 
 go 1.16
 
