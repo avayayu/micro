@@ -2,8 +2,8 @@ package micro
 
 import (
 	"go.mongodb.org/mongo-driver/mongo"
-	"gogs.bfr.com/zouhy/micro/code"
-	"gogs.bfr.com/zouhy/micro/net/http"
+	"gogs.buffalo-robot.com/zouhy/micro/code"
+	"gogs.buffalo-robot.com/zouhy/micro/net/http"
 	"gorm.io/gorm"
 )
 

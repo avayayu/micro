@@ -2,8 +2,8 @@ package main
 
 import (
 	"go.uber.org/zap"
-	"gogs.bfr.com/zouhy/micro/micro"
-	"gogs.bfr.com/zouhy/micro/net/http"
+	"gogs.buffalo-robot.com/zouhy/micro/micro"
+	"gogs.buffalo-robot.com/zouhy/micro/net/http"
 )
 
 const _module = "test"

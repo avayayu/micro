@@ -6,8 +6,8 @@ import (
 
 	"github.com/bwmarrin/snowflake"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"gogs.bfr.com/zouhy/micro/lib"
-	ztime "gogs.bfr.com/zouhy/micro/time"
+	"gogs.buffalo-robot.com/zouhy/micro/lib"
+	ztime "gogs.buffalo-robot.com/zouhy/micro/time"
 	"gorm.io/gorm"
 )
 

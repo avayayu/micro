@@ -9,9 +9,9 @@ import (
 	"strconv"
 
 	"github.com/thoas/go-funk"
-	"gogs.bfr.com/zouhy/micro/lib"
-	"gogs.bfr.com/zouhy/micro/models"
-	ztime "gogs.bfr.com/zouhy/micro/time"
+	"gogs.buffalo-robot.com/zouhy/micro/lib"
+	"gogs.buffalo-robot.com/zouhy/micro/models"
+	ztime "gogs.buffalo-robot.com/zouhy/micro/time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

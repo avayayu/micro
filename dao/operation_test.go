@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"gogs.bfr.com/zouhy/micro/models"
+	"gogs.buffalo-robot.com/zouhy/micro/models"
 	"gorm.io/gorm"
 )
 

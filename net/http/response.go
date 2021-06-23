@@ -3,8 +3,8 @@ package http
 import (
 	"reflect"
 
-	"gogs.bfr.com/zouhy/micro/code"
-	"gogs.bfr.com/zouhy/micro/net/http/render"
+	"gogs.buffalo-robot.com/zouhy/micro/code"
+	"gogs.buffalo-robot.com/zouhy/micro/net/http/render"
 )
 
 type Response interface {

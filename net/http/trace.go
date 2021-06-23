@@ -6,8 +6,8 @@ import (
 	"net/http/httptrace"
 	"strconv"
 
-	"gogs.bfr.com/zouhy/micro/net/metadata"
-	"gogs.bfr.com/zouhy/micro/net/trace"
+	"gogs.buffalo-robot.com/zouhy/micro/net/metadata"
+	"gogs.buffalo-robot.com/zouhy/micro/net/trace"
 )
 
 const _defaultComponentName = "net/http"

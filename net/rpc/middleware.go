@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"strconv"
 
-	nmd "gogs.bfr.com/zouhy/micro/net/metadata"
-	"gogs.bfr.com/zouhy/micro/stat/sys/cpu"
+	nmd "gogs.buffalo-robot.com/zouhy/micro/net/metadata"
+	"gogs.buffalo-robot.com/zouhy/micro/stat/sys/cpu"
 	"google.golang.org/grpc"
 	gmd "google.golang.org/grpc/metadata"
 )

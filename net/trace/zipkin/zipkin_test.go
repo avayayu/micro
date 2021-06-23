@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"gogs.bfr.com/zouhy/micro/net/trace"
-	xtime "gogs.bfr.com/zouhy/micro/time"
+	"gogs.buffalo-robot.com/zouhy/micro/net/trace"
+	xtime "gogs.buffalo-robot.com/zouhy/micro/time"
 )
 
 func TestZipkin(t *testing.T) {

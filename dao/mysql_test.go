@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"gogs.bfr.com/zouhy/micro/dao/drivers/mysql"
-	"gogs.bfr.com/zouhy/micro/lib"
-	"gogs.bfr.com/zouhy/micro/models"
+	"gogs.buffalo-robot.com/zouhy/micro/dao/drivers/mysql"
+	"gogs.buffalo-robot.com/zouhy/micro/lib"
+	"gogs.buffalo-robot.com/zouhy/micro/models"
 )
 
 var dao DAO

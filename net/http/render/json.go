@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	ecode "gogs.bfr.com/zouhy/micro/code"
-	"gogs.bfr.com/zouhy/micro/net/constants"
+	ecode "gogs.buffalo-robot.com/zouhy/micro/code"
+	"gogs.buffalo-robot.com/zouhy/micro/net/constants"
 )
 
 var jsonContentType = []string{"application/json; charset=utf-8"}

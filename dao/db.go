@@ -11,8 +11,8 @@ package dao
 import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
-	"gogs.bfr.com/zouhy/micro/logging"
-	"gogs.bfr.com/zouhy/micro/models"
+	"gogs.buffalo-robot.com/zouhy/micro/logging"
+	"gogs.buffalo-robot.com/zouhy/micro/models"
 	"gorm.io/gorm"
 )
 

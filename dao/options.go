@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"gogs.bfr.com/zouhy/micro/lib"
-	"gogs.bfr.com/zouhy/micro/models"
+	"gogs.buffalo-robot.com/zouhy/micro/lib"
+	"gogs.buffalo-robot.com/zouhy/micro/models"
 	"gorm.io/gorm"
 )
 

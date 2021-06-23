@@ -3,9 +3,9 @@ package zipkin
 import (
 	"time"
 
-	"gogs.bfr.com/zouhy/micro/net/conf/env"
-	"gogs.bfr.com/zouhy/micro/net/trace"
-	xtime "gogs.bfr.com/zouhy/micro/time"
+	"gogs.buffalo-robot.com/zouhy/micro/net/conf/env"
+	"gogs.buffalo-robot.com/zouhy/micro/net/trace"
+	xtime "gogs.buffalo-robot.com/zouhy/micro/time"
 )
 
 // Config config.

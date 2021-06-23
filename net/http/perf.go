@@ -8,7 +8,7 @@ import (
 	"os"
 	"sync"
 
-	"gogs.bfr.com/zouhy/micro/net/conf/dsn"
+	"gogs.buffalo-robot.com/zouhy/micro/net/conf/dsn"
 )
 
 var (

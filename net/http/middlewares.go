@@ -7,8 +7,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
-	"gogs.bfr.com/zouhy/micro/code"
-	"gogs.bfr.com/zouhy/micro/models"
+	"gogs.buffalo-robot.com/zouhy/micro/code"
+	"gogs.buffalo-robot.com/zouhy/micro/models"
 )
 
 //TimeMiddleWare 接口访问延迟中间件

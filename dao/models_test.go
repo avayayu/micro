@@ -1,8 +1,8 @@
 package dao
 
 import (
-	mmodels "gogs.bfr.com/zouhy/micro/models"
-	ztime "gogs.bfr.com/zouhy/micro/time"
+	mmodels "gogs.buffalo-robot.com/zouhy/micro/models"
+	ztime "gogs.buffalo-robot.com/zouhy/micro/time"
 )
 
 //DeviceType 云端设备类型信息

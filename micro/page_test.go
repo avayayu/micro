@@ -3,8 +3,8 @@ package micro
 import (
 	"testing"
 
-	"gogs.bfr.com/zouhy/micro/dao"
-	"gogs.bfr.com/zouhy/micro/net/http"
+	"gogs.buffalo-robot.com/zouhy/micro/dao"
+	"gogs.buffalo-robot.com/zouhy/micro/net/http"
 )
 
 func TestPagesQuery(t *testing.T) {

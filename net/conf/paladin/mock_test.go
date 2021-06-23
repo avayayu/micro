@@ -3,7 +3,7 @@ package paladin_test
 import (
 	"testing"
 
-	"gogs.bfr.com/zouhy/micro/net/conf/paladin"
+	"gogs.buffalo-robot.com/zouhy/micro/net/conf/paladin"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -8,7 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gogs.bfr.com/zouhy/micro/code/api"
+	"gogs.buffalo-robot.com/zouhy/micro/code/api"
 	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

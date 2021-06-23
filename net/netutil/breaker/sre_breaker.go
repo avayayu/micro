@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"gogs.bfr.com/zouhy/micro/stat/metric"
+	"gogs.buffalo-robot.com/zouhy/micro/stat/metric"
 )
 
 // sreBreaker is a sre CircuitBreaker pattern.

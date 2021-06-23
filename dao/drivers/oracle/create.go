@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/thoas/go-funk"
-	"gogs.bfr.com/zouhy/micro/dao/drivers/oracle/clauses"
+	"gogs.buffalo-robot.com/zouhy/micro/dao/drivers/oracle/clauses"
 	"gorm.io/gorm"
 	"gorm.io/gorm/callbacks"
 	"gorm.io/gorm/clause"

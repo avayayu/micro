@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	criticalityPkg "gogs.bfr.com/zouhy/micro/net/criticality"
-	"gogs.bfr.com/zouhy/micro/net/metadata"
-	xtime "gogs.bfr.com/zouhy/micro/time"
+	criticalityPkg "gogs.buffalo-robot.com/zouhy/micro/net/criticality"
+	"gogs.buffalo-robot.com/zouhy/micro/net/metadata"
+	xtime "gogs.buffalo-robot.com/zouhy/micro/time"
 
 	"github.com/stretchr/testify/assert"
 )

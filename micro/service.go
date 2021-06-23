@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"gogs.bfr.com/zouhy/micro/net/http"
-	ztime "gogs.bfr.com/zouhy/micro/time"
+	"gogs.buffalo-robot.com/zouhy/micro/net/http"
+	ztime "gogs.buffalo-robot.com/zouhy/micro/time"
 )
 
 type Micro interface {

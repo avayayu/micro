@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	ztime "gogs.bfr.com/zouhy/micro/time"
+	ztime "gogs.buffalo-robot.com/zouhy/micro/time"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"

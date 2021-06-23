@@ -17,9 +17,9 @@ import (
 	"sync"
 	"time"
 
-	"gogs.bfr.com/zouhy/micro/net/conf/env"
-	"gogs.bfr.com/zouhy/micro/net/metadata"
-	"gogs.bfr.com/zouhy/micro/net/netutil/breaker"
+	"gogs.buffalo-robot.com/zouhy/micro/net/conf/env"
+	"gogs.buffalo-robot.com/zouhy/micro/net/metadata"
+	"gogs.buffalo-robot.com/zouhy/micro/net/netutil/breaker"
 
 	"github.com/gogo/protobuf/proto"
 	pkgerr "github.com/pkg/errors"

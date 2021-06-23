@@ -3,8 +3,8 @@ package http
 import (
 	"fmt"
 
-	criticalityPkg "gogs.bfr.com/zouhy/micro/net/criticality"
-	"gogs.bfr.com/zouhy/micro/net/metadata"
+	criticalityPkg "gogs.buffalo-robot.com/zouhy/micro/net/criticality"
+	"gogs.buffalo-robot.com/zouhy/micro/net/metadata"
 )
 
 // Criticality is

@@ -15,12 +15,12 @@ import (
 	"time"
 
 	pkgerr "github.com/pkg/errors"
-	"gogs.bfr.com/zouhy/micro/net/conf/dsn"
-	"gogs.bfr.com/zouhy/micro/net/constants"
-	"gogs.bfr.com/zouhy/micro/net/criticality"
-	"gogs.bfr.com/zouhy/micro/net/ip"
-	"gogs.bfr.com/zouhy/micro/net/metadata"
-	ztime "gogs.bfr.com/zouhy/micro/time"
+	"gogs.buffalo-robot.com/zouhy/micro/net/conf/dsn"
+	"gogs.buffalo-robot.com/zouhy/micro/net/constants"
+	"gogs.buffalo-robot.com/zouhy/micro/net/criticality"
+	"gogs.buffalo-robot.com/zouhy/micro/net/ip"
+	"gogs.buffalo-robot.com/zouhy/micro/net/metadata"
+	ztime "gogs.buffalo-robot.com/zouhy/micro/time"
 )
 
 const (
