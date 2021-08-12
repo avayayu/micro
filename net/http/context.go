@@ -365,6 +365,14 @@ func (c *Context) Redirect(code int, location string) {
 func (c *Context) BindWith(obj interface{}, b binding.Binding) error {
 	return c.mustBindWith(obj, b)
 }
+func (c *Context) Param(key string) string {
+	return c.Params.ByName(key)
+}
+
+// File writes the specified file into the body stream in an efficient way.
+func (c *Context) File(filepath string) {
+	http.ServeFile(c.Writer, c.Request, filepath)
+}
 
 // Bind checks the Content-Type to select a binding engine automatically,
 // Depending the "Content-Type" header different bindings are used:
