@@ -77,7 +77,7 @@ var fail Response = (Response)(map[string]interface{}{"status": constants.HTTPFa
 
 //Success 复制一份success，并返回其指针
 func SuccessResponse() *Response {
-	successTemp := (Response)(map[string]interface{}{"status": constants.HTTPSuccess})
+	successTemp := (Response)(map[string]interface{}{"status": constants.HTTPSuccess, "data": map[string]interface{}{}})
 	// successCopy := success
 	return &successTemp
 }
@@ -98,7 +98,7 @@ func (r *Response) Set(key string, value interface{}) *Response {
 	if value == nil {
 		return r
 	}
-	dataMap := *r
+	dataMap := (*r)["data"].(map[string]interface{})
 
 	if _, ok := dataMap[key]; ok {
 		panic("not duplicate key,please")

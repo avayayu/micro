@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+//swagger:
 type Int64Str uint64
 
 func (i Int64Str) MarshalJSON() ([]byte, error) {
