@@ -1,13 +1,9 @@
 {
-    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\wsl.exe",
+
     "terminal.integrated.cwd": "${fileDirname}",
-    "terminal.integrated.shellArgs.linux": [
-        "-l"
-    ],
     "terminal.integrated.splitCwd": "workspaceRoot",
     "terminal.integrated.fontFamily": "'Noto Mono for Powerline'",
     "terminal.integrated.fontSize": 14,
-    "go.goroot": "/home/programs/go",
     "go.formatTool": "goformat",
     "go.testEnvVars": {
         "cloudbrainMode": "dev"

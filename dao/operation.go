@@ -36,27 +36,27 @@ func (query *QueryOptions) Create(model interface{}, createdBy string, value int
 		return query.session.Omit(clause.Associations).Model(model).Create(value).Error
 	case reflect.Slice, reflect.Array:
 		sliceValue := reflect.ValueOf(value).Elem()
-		for i := 0; i < sliceValue.Len(); i++ {
-			v := sliceValue.Index(i)
-			typV := v.Type()
-			if typV.Kind() == reflect.Ptr {
-				typV = typV.Elem()
-				v = v.Elem()
-			}
-
-			if typV.Kind() != reflect.Struct {
-				panic("element must be struct ")
-			}
-
-			if _, ok := typV.FieldByName("CreatedBy"); ok {
-				val := v.FieldByName("CreatedBy")
-				val.SetString(createdBy)
-			}
-
-			if err := query.session.Omit(clause.Associations).Model(model).Create(v.Addr().Interface()).Error; err != nil {
-				return err
-			}
+		if err := query.session.Omit(clause.Associations).Model(model).Create(sliceValue.Interface()).Error; err != nil {
+			return err
 		}
+		// for i := 0; i < sliceValue.Len(); i++ {
+		// 	v := sliceValue.Index(i)
+		// 	typV := v.Type()
+		// 	if typV.Kind() == reflect.Ptr {
+		// 		typV = typV.Elem()
+		// 		v = v.Elem()
+		// 	}
+
+		// 	if typV.Kind() != reflect.Struct {
+		// 		panic("element must be struct ")
+		// 	}
+
+		// 	if _, ok := typV.FieldByName("CreatedBy"); ok {
+		// 		val := v.FieldByName("CreatedBy")
+		// 		val.SetString(createdBy)
+		// 	}
+
+		// }
 	default:
 		return fmt.Errorf("slice or struct needed,but type of value is %s", reflect.TypeOf(value).Kind())
 	}
