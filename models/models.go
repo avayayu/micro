@@ -11,6 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type MicroModels interface {
+	TableName() string
+}
+
 var Node *snowflake.Node
 
 func init() {
