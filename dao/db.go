@@ -69,6 +69,7 @@ type Query interface {
 	PluckList(model interface{}, out interface{}, fieldName string) error
 	CheckIDList(model interface{}, idList []models.Int64Str) error
 	RawToMap(rawSql string, out interface{}, column string) error
+	Offset(begin int) Query
 	Unscoped() Query
 	Debug() Query
 	Reset()

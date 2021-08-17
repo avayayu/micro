@@ -323,6 +323,8 @@ func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize i
 	return session.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(out).Error
 }
 
+
+
 // GetPage 从数据库中分页获取数据
 func (query *QueryOptions) GetPageWithFilters(parameter interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
 	defer query.Reset()

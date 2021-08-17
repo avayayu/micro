@@ -62,6 +62,11 @@ func (options *QueryOptions) Not(where Model) Query {
 	return options
 }
 
+func (options *QueryOptions) Offset(begin int) Query {
+	options.session = options.session.Offset(begin)
+	return options
+}
+
 func (options *QueryOptions) In(where Model, column string, value interface{}) Query {
 	nameMap := getTableFieldNameGormName(where)
 	column, ok := nameMap[column]

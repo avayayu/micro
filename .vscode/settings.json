@@ -13,8 +13,10 @@
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
-        }
+        },
+        
     },
+    "go.goroot": "/home/programs/go",
     "gopls": {
         "usePlaceholders": true,
         "completeUnimported": true
