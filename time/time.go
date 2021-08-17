@@ -26,7 +26,6 @@ func (d Duration) Shrink(c context.Context) (Duration, context.Context, context.
 
 //JSONTime 可在JSON中序列化的时间类型
 type Time struct {
-	Layout string
 	time.Time
 }
 
@@ -83,12 +82,11 @@ func (m *Time) UnmarshalJSON(data []byte) error {
 	date := strings.ReplaceAll(string(data), "\"", "")
 	var tempTime time.Time
 	var err error
-	if m.Layout == "" {
-		tempTime, err = time.ParseInLocation("2006-01-02 15:04:05", date, time.Local)
-	} else {
-		tempTime, err = time.ParseInLocation(m.Layout, date, time.Local)
-	}
 
+	tempTime, err = time.ParseInLocation("2006-01-02 15:04:05", date, time.Local)
+	if err != nil {
+		tempTime, err = time.ParseInLocation("2006-01-02 15:04:05.000", date, time.Local)
+	}
 	if err != nil {
 		if date == "" {
 			m = nil
