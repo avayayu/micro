@@ -3,11 +3,18 @@ package logging
 import (
 	"fmt"
 	"os"
+	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	ztime "gogs.buffalo-robot.com/zouhy/micro/time"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
+
+var once sync.Once
+var date string
+var logger *zap.Logger
 
 func NewSimpleLogger() *zap.Logger {
 	encoderConfig := zapcore.EncoderConfig{
@@ -43,13 +50,18 @@ func NewSimpleLogger() *zap.Logger {
 	return logger
 }
 
-func NewProdLoggger(filePath, level string) *zap.Logger {
+func GetLogger(fileName, level string) *zap.Logger {
+	once.Do(func() {
+		logger = newProdLoggger(fileName, level)
+	})
+	return logger
+}
 
+func newProdLoggger(fileName, level string) *zap.Logger {
 	hook := lumberjack.Logger{
-		Filename:   filePath, // 日志文件路径
-		MaxSize:    50,       // 每个日志文件保存的最大尺寸 单位：M
+		Filename:   fileName, // 日志文件路径
 		MaxBackups: 30,       // 日志文件最多保存多少个备份
-		MaxAge:     14,       // 文件最多保存多少天
+		MaxAge:     90,       // 文件最多保存多少天
 		Compress:   true,     // 是否压缩
 	}
 
@@ -100,7 +112,18 @@ func NewProdLoggger(filePath, level string) *zap.Logger {
 
 	logger := zap.New(core, caller, development, zap.AddStacktrace(zapcore.WarnLevel))
 
-	logger.Info("zap logger初始化成功")
+	timer := time.NewTicker(time.Minute)
+
+	go func() {
+		for {
+			select {
+			case <-timer.C:
+				if date != ztime.Now().Date() {
+					hook.Rotate()
+				}
+			}
+		}
+	}()
 
 	return logger
 }
