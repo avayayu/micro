@@ -58,6 +58,7 @@ func GetLogger(fileName, level string) *zap.Logger {
 }
 
 func newProdLoggger(fileName, level string) *zap.Logger {
+	date = ztime.Now().Date()
 	hook := lumberjack.Logger{
 		Filename:   fileName, // 日志文件路径
 		MaxBackups: 30,       // 日志文件最多保存多少个备份
@@ -120,6 +121,7 @@ func newProdLoggger(fileName, level string) *zap.Logger {
 			case <-timer.C:
 				if date != ztime.Now().Date() {
 					hook.Rotate()
+					date = ztime.Now().Date()
 				}
 			}
 		}
