@@ -1,7 +1,6 @@
 package http
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -21,7 +20,7 @@ func TimeMiddleWare(logger *zap.Logger) HandlerFunc {
 		latency := time.Since(t)
 		if c.RoutePath != "" {
 			logger.Debug("接口延迟",
-				zap.String("latency", strconv.Itoa(int(latency.Milliseconds()))+"ms"),
+				zap.Int64("latency(ms)", latency.Milliseconds()),
 				zap.String("path", c.RoutePath),
 				zap.String("METHOD", c.method),
 				zap.String("visitor", c.Request.RemoteAddr),
@@ -34,9 +33,7 @@ func TimeMiddleWare(logger *zap.Logger) HandlerFunc {
 func RequestIDMiddleware(logger *zap.Logger) HandlerFunc {
 	return func(c *Context) {
 		requestID := uuid.NewV4().String()
-
 		c.Set("requestID", requestID)
-
 		if c.RoutePath != "" {
 			logger.Debug("接受到请求",
 				zap.String("METHOD", c.method),
@@ -45,7 +42,6 @@ func RequestIDMiddleware(logger *zap.Logger) HandlerFunc {
 				zap.String("request", requestID))
 		}
 		c.Next()
-
 	}
 }
 
@@ -232,19 +228,25 @@ func at(t time.Time, f func()) {
 }
 
 //CrosHandler 简单开启所有的跨域功能
+
 func CrosHandler() HandlerFunc {
 	return func(context *Context) {
 		method := context.Request.Method
-		context.Writer.Header().Set("Access-Control-Allow-Origin", "*") // 设置允许访问所有域
-		context.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE,UPDATE")
-		context.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Length, X-CSRF-Token, Token,session,X_Requested_With,Accept, Origin, Host, Connection, Accept-Encoding, Accept-Language,DNT, X-CustomHeader, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Pragma,token,openid,opentoken")
-		context.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers,Cache-Control,Content-Language,Content-Type,Expires,Last-Modified,Pragma,FooBar")
-		context.Writer.Header().Set("Access-Control-Max-Age", "172800")
-		context.Writer.Header().Set("Access-Control-Allow-Credentials", "false")
-		context.Set("content-type", "application/json")
+		origin := context.Request.Header.Get("Origin") //请求头部
+		if origin != "" {
+			context.Writer.Header().Set("Access-Control-Allow-Origin", origin) // 设置允许访问所有域
+			context.Writer.Header().Set("Access-Control-Allow-Methods", "*")
+			context.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Length, X-CSRF-Token, Token,session,X_Requested_With,Accept, Origin, Host, Connection, Accept-Encoding, Accept-Language,DNT, X-CustomHeader, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Pragma,token,openid,opentoken,Access-Control-Allow-Origin")
+			context.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers,Cache-Control,Content-Language,Content-Type,Expires,Last-Modified,Pragma,FooBar")
+			context.Writer.Header().Set("Access-Control-Max-Age", "172800")
+			context.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+			// context.Set("content-type", "application/json")
+		}
 
 		if method == "OPTIONS" {
+			context.Abort()
 			context.FlushHttpResponse()
+			return
 		}
 
 		//处理请求
