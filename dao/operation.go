@@ -88,7 +88,7 @@ func (query *QueryOptions) UpdateModel(model Model, where Model, updatedBy strin
 			continue
 		} else {
 			if !field.IsZero() {
-				updatesMap[gormName] = field.String()
+				updatesMap[gormName] = field.Interface()
 			}
 		}
 	}
