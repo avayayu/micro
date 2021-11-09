@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"testing"
@@ -27,7 +26,7 @@ func (t Role) TableName() string {
 func TestMain(m *testing.M) {
 
 	configs := mysql.MysqlConfigs{
-		URL:                 "192.168.100.128",
+		URL:                 "192.168.100.132",
 		Port:                "33309",
 		UserName:            "root",
 		Password:            "bfr123123",
@@ -43,7 +42,7 @@ func TestMain(m *testing.M) {
 
 	dao.AutoMigrate(&DeviceType{}, &DeviceFactory{}, &Device{})
 
-	flag.Parse()
+	//flag.Parse()
 	exitCode := m.Run()
 
 	// 退出
@@ -406,6 +405,43 @@ func TestQueryOptions_Like(t *testing.T) {
 	}
 }
 
+func TestQueryOptions_SelectModel(t *testing.T) {
+
+	type args struct {
+		where Model
+	}
+
+	outData3 := []*DeviceFactory{}
+
+	tests := []struct {
+		name    string
+		query   Query
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:  "select Models",
+			query: dao.NewQuery().Debug(),
+			args: args{
+				where: &DeviceFactory{
+					FactoryName: "布法罗",
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.query.SelectModel(&DeviceFactory{}, "FactoryName").Find(&DeviceFactory{}, &outData3); (err != nil) != tt.wantErr {
+				t.Errorf("QueryOptions.FindToMap() error = %v, wantErr %v", err, tt.wantErr)
+			} else {
+				fmt.Println(outData3)
+			}
+		})
+	}
+}
 func TestQueryOptions_UpdateModel(t *testing.T) {
 
 	type args struct {

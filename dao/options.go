@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/siddontang/go/log"
 	"gogs.buffalo-robot.com/zouhy/micro/lib"
 	"gogs.buffalo-robot.com/zouhy/micro/models"
 	"gorm.io/gorm"
@@ -75,6 +76,20 @@ func (options *QueryOptions) In(where Model, column string, value interface{}) Q
 	}
 	sql := fmt.Sprintf("%s in (?)", column)
 	options.session = options.session.Where(sql, value)
+	return options
+}
+
+func (options *QueryOptions) SelectModel(model Model, columns ...string) Query {
+	nameMap := getTableFieldNameGormName(model)
+	selectList := []string{}
+	for _, col := range columns {
+		if gormCol, ok := nameMap[col]; ok {
+			selectList = append(selectList, gormCol)
+		} else {
+			log.Warn(fmt.Sprintf("%s不是模型字段，请检查代码", col))
+		}
+	}
+	options.session = options.session.Select(selectList)
 	return options
 }
 
@@ -335,8 +350,6 @@ func (order *Order) GetPageOrder(models interface{}, pageOrder *QueryOptions) *Q
 }
 
 func getTableFieldNameGormName(model Model) map[string]string {
-	fieldNameGormNameMapMux.Lock()
-	defer fieldNameGormNameMapMux.Unlock()
 
 	if fieldNameGormNameMap == nil {
 		fieldNameGormNameMap = make(map[string]map[string]string)
@@ -345,6 +358,9 @@ func getTableFieldNameGormName(model Model) map[string]string {
 	if nameMap, ok := fieldNameGormNameMap[model.TableName()]; ok {
 		return nameMap
 	}
+
+	fieldNameGormNameMapMux.Lock()
+	defer fieldNameGormNameMapMux.Unlock()
 
 	nameMap := make(map[string]string)
 

@@ -4,7 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"gogs.buffalo-robot.com/zouhy/micro/dao"
+	"gogs.buffalo-robot.com/zouhy/micro/dao/drivers/mysql"
+	mmodels "gogs.buffalo-robot.com/zouhy/micro/models"
 )
+
+//DeviceFactory 设备生产商
+type DeviceFactory struct {
+	mmodels.Model
+	FactoryName string `gorm:"Column:factory_name;type:varchar(100);not null"` //产商名称
+	Comments    string `gorm:"Column:comments"`                                //备注信息
+}
+
+func (p *DeviceFactory) TableName() string {
+	return "device_factory"
+}
 
 type Int64Str uint64
 
@@ -29,18 +44,25 @@ func (i *Int64Str) UnmarshalJSON(b []byte) error {
 }
 
 func main() {
-	data := []string{"1336589085397450752", "1336589093232410624"}
 
-	str, _ := json.Marshal(&data)
-
-	fmt.Println(string(str))
-
-	test := []Int64Str{}
-
-	err := json.Unmarshal(str, &test)
-	if err != nil {
-		fmt.Println(err)
+	configs := mysql.MysqlConfigs{
+		URL:                 "192.168.100.132",
+		Port:                "33309",
+		UserName:            "root",
+		Password:            "bfr123123",
+		DBName:              "cloudbrain_test",
+		MysqlOpenPrometheus: false,
 	}
 
-	fmt.Println(test)
+	mysqlDrvicer := &mysql.MysqlDriver{
+		Configs: &configs,
+	}
+
+	db := dao.NewDatabase(mysqlDrvicer)
+	outDatas := []DeviceFactory{}
+	if err := db.NewQuery().SelectModel(&DeviceFactory{}, "FactoryName", "CreatedAt").Find(&DeviceFactory{}, &outDatas); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(outDatas)
 }

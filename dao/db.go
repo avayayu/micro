@@ -45,6 +45,8 @@ type Query interface {
 	Updates(model interface{}, UpdatesBy string, value map[string]interface{}, filters ...interface{}) error
 	Delete(model interface{}, deletedBy string, filters ...interface{}) error
 	First(model, out interface{}) (Found bool, err error)
+	//SelectModel columns为struct的字段名，自动将字段名映射为数据库的列名
+	SelectModel(model Model, columns ...string) Query
 	Find(model, out interface{}) error
 	Count(model interface{}) (count int64)
 	Raw(sql string, out interface{}) error
