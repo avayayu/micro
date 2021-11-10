@@ -2,6 +2,7 @@ package logging
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"sync"
 	"time"
@@ -52,12 +53,12 @@ func NewSimpleLogger() *zap.Logger {
 
 func GetLogger(fileName, level string) *zap.Logger {
 	once.Do(func() {
-		logger = newProdLoggger(fileName, level)
+		logger = NewProdLoggger(fileName, level)
 	})
 	return logger
 }
 
-func newProdLoggger(fileName, level string) *zap.Logger {
+func NewProdLoggger(fileName, level string, ioWriters ...io.Writer) *zap.Logger {
 	date = ztime.Now().Date()
 	hook := lumberjack.Logger{
 		Filename:   fileName, // 日志文件路径
@@ -92,13 +93,12 @@ func newProdLoggger(fileName, level string) *zap.Logger {
 	}
 	var writers zapcore.WriteSyncer
 
-	// if kafkaURL != "" {
-	// 	kp, err := NewKafkaProducer(constants.KafkaLogTopic, kafkaURL)
-	// 	if err == nil {
-	// 		writers = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook), zapcore.AddSync(kp))
-	// 	}
-	// } else {
-	writers = zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook))
+	syncWriters := []zapcore.WriteSyncer{zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)}
+	for _, writer := range ioWriters {
+		syncWriters = append(syncWriters, zapcore.AddSync(writer))
+	}
+	writers = zapcore.NewMultiWriteSyncer(syncWriters...)
+
 	// }
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoderConfig), // 编码器配置
@@ -128,4 +128,26 @@ func newProdLoggger(fileName, level string) *zap.Logger {
 	}()
 
 	return logger
+}
+
+type Emiter interface {
+	Emit(event string, payload string)
+}
+
+type SocketLogger struct {
+	emiter Emiter
+	event  string
+}
+
+func NewSocketLogger(event string, emiter Emiter) *SocketLogger {
+	return &SocketLogger{
+		event:  event,
+		emiter: emiter,
+	}
+}
+
+func (s *SocketLogger) Write(p []byte) (n int, err error) {
+	s.emiter.Emit(s.event, string(p))
+	n = len(p)
+	return
 }
