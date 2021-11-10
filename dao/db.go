@@ -56,6 +56,7 @@ type Query interface {
 	ParseOrder(parameter interface{}, order *Order) Query
 	Filter(parameter interface{}, filter *Filter) Query
 	WhereQuery(where string, conditions ...interface{}) Query
+	Exec(sql string) error
 	Select(attrs ...string) Query
 	Joins(Table ...string) Query
 	Order(order ...string) Query

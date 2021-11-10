@@ -43,6 +43,11 @@ func (c *Context) FlushHttpClientError(code code.Code, msg string, err error) {
 //FlushHttpResponse 返回一次成功的http请求 datas为 key value格式 其中value一定要为指针！
 func (c *Context) FlushHttpResponse(datas ...interface{}) {
 	response := render.SuccessResponse()
+
+	if len(datas) == 1 {
+		
+	}
+
 	if len(datas)%2 != 0 {
 		panic("http response must be key value ")
 	}

@@ -110,6 +110,9 @@ func (query *QueryOptions) Count(model interface{}) (count int64) {
 	return
 
 }
+func (query *QueryOptions) Exec(sql string) error {
+	return query.session.Exec(sql).Error
+}
 
 // Updates 更新模型
 func (query *QueryOptions) Updates(model interface{}, UpdatesBy string, value map[string]interface{}, filters ...interface{}) error {
@@ -322,8 +325,6 @@ func (query *QueryOptions) GetPage(model, out interface{}, pageIndex, pageSize i
 	}
 	return session.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(out).Error
 }
-
-
 
 // GetPage 从数据库中分页获取数据
 func (query *QueryOptions) GetPageWithFilters(parameter interface{}, filters *Filter, out interface{}, pageIndex, pageSize int, totalCount *int64) error {
