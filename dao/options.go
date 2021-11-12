@@ -66,7 +66,7 @@ func (options *QueryOptions) Where(where Model) Query {
 		} else {
 			if !value.IsZero() {
 				subSql := fmt.Sprintf("%s = (?)", gormName)
-				options.session = options.session.Where(subSql, value.String())
+				options.session = options.session.Where(subSql, value.Interface())
 			}
 		}
 
