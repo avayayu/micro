@@ -396,7 +396,7 @@ func getTableFieldNameGormName(model Model) map[string]string {
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 
-		if field.Type.Kind() == reflect.TypeOf(models.Model{}).Kind() {
+		if field.Type == reflect.TypeOf(models.Model{}) {
 			nameMapTemp := models.ModelNameMap()
 			for key, value := range nameMapTemp {
 				nameMap[key] = value
