@@ -49,7 +49,28 @@ func (options *QueryOptions) WhereQuery(where string, conditions ...interface{})
 }
 
 func (options *QueryOptions) Where(where Model) Query {
-	options.session = options.session.Where(where)
+
+	nameMap := getTableFieldNameGormName(where)
+	typ := reflect.TypeOf(where)
+	if typ.Kind() != reflect.Ptr {
+		panic("need ptr")
+	}
+	typ = typ.Elem()
+	val := reflect.ValueOf(where).Elem()
+	for i := 0; i < typ.NumField(); i++ {
+		fieldTyp := typ.Field(i)
+		value := val.Field(i)
+
+		if gormName, ok := nameMap[fieldTyp.Name]; !ok {
+			continue
+		} else {
+			if !value.IsZero() {
+				subSql := fmt.Sprintf("%s = (?)", gormName)
+				options.session = options.session.Where(subSql, value.String())
+			}
+		}
+
+	}
 	return options
 }
 

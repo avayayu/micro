@@ -30,3 +30,9 @@ func Test_getTableFieldNameGormName(t *testing.T) {
 		})
 	}
 }
+
+
+
+func Test_Where(t *testing.T) {
+
+}
