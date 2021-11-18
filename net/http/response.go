@@ -45,30 +45,31 @@ func (c *Context) FlushHttpResponse(datas ...interface{}) {
 	response := render.SuccessResponse()
 
 	if len(datas) == 1 {
-		
+		response = response.Set("data", datas[0])
+	} else {
+		if len(datas)%2 != 0 {
+			panic("http response must be key value ")
+		}
+		var index int = 0
+		if len(datas) > 0 {
+			for {
+				if index >= len(datas) {
+					break
+				}
+				if key, ok := datas[index].(string); !ok {
+					panic("key must be string")
+				} else {
+					value := datas[index+1]
+					response = response.Set(key, value)
+				}
+				index = index + 2
+			}
+		}
+		httpResponse := render.NewhttpResponse(response)
+		c.WritedStatus = 200
+		c.Render(200, httpResponse)
 	}
 
-	if len(datas)%2 != 0 {
-		panic("http response must be key value ")
-	}
-	var index int = 0
-	if len(datas) > 0 {
-		for {
-			if index >= len(datas) {
-				break
-			}
-			if key, ok := datas[index].(string); !ok {
-				panic("key must be string")
-			} else {
-				value := datas[index+1]
-				response = response.Set(key, value)
-			}
-			index = index + 2
-		}
-	}
-	httpResponse := render.NewhttpResponse(response)
-	c.WritedStatus = 200
-	c.Render(200, httpResponse)
 }
 
 //FlushFailHttpResponse 返回未出错但失败的请求的原因
